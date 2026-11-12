@@ -1,0 +1,52 @@
+name: Build Dylib Only
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: 1. Depoyu Klonla
+      uses: actions/checkout@v4
+
+    - name: 2. Theos Kurulumu
+      run: |
+        export THEOS=$HOME/theos
+        mkdir -p $THEOS
+        # Theos'u ZIP ile indir
+        curl -L https://github.com/theos/theos/archive/refs/heads/master.zip -o theos.zip
+        unzip -q theos.zip
+        mv theos-master/* $THEOS
+        rm -rf theos.zip theos-master
+        
+        # Eksik kütüphaneleri (vendor) indir
+        mkdir -p $THEOS/vendor
+        curl -L https://github.com/theos/headers/archive/refs/heads/master.zip -o headers.zip
+        unzip -q headers.zip
+        mv headers-master $THEOS/vendor/include
+        rm -rf headers.zip
+        
+        curl -L https://github.com/theos/lib/archive/refs/heads/master.zip -o lib.zip
+        unzip -q lib.zip
+        mv lib-master $THEOS/vendor/lib
+        rm -rf lib.zip
+        
+        echo "THEOS=$THEOS" >> $GITHUB_ENV
+        echo "$THEOS/bin" >> $GITHUB_PATH
+
+    - name: 3. Derleme Yap (Sadece Dylib)
+      run: |
+        make clean || true
+        make
+
+    - name: 4. Dylib Dosyasını Bul ve İndirme Butonu Olarak Yükle
+      uses: actions/upload-artifact@v4
+      with:
+        name: Derlenen-Dylib
+        # Projenin içinde ne kadar .dylib varsa bulup yükler
+        path: "**/*.dylib"
+        if-no-files-found: warn
