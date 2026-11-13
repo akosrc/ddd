@@ -3,16 +3,9 @@
 #import <UIKit/UIKit.h>
 #import <NetworkExtension/NetworkExtension.h>
 #import "ImageResources.h"
-//#include "utils/image11.h"
 
 @implementation FloatView {
     BOOL hasOpenedMenuInThisSession; 
-}
-
-
-- (NSString *)decodeBase64:(NSString *)base64String {
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:base64String options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
 + (instancetype)sharedInstance :(ModuleControl*)control {
@@ -25,45 +18,23 @@
 }
 
 - (instancetype)initWithFrame:(CGRect)frame :(ModuleControl*)control {
-
-    // --- ESKİ KEY KONTROLLERİ DEVRE DIŞI BIRAKILDI ---
-    // Bu fonksiyonlar projede tanımlı olmadığı için Linker hatası veriyordu.
-    // Artık yeni KeySystem.mm kullanacağımız için bunlara gerek yok.
-    /*
-    extern bool PlayerzSDK();
-    extern bool ComponantSDK();
-    extern bool Player1SK();
-    extern bool Velocr();
-
-    if (!PlayerzSDK()) {
-        return 0;
-    }
-    */
-    // ------------------------------------------------
-
     self.moduleControl = control;
     hasOpenedMenuInThisSession = NO; 
 
     if (self = [super initWithFrame:frame]) {
-        self.layer.cornerRadius = frame.size.width * 0.3;
+        // --- SADECE SİYAH YARI SAYDAM DAİRE TASARIMI ---
+        
+        // Butonu tam yuvarlak yap
+        self.layer.cornerRadius = frame.size.width / 2.0; 
         self.layer.masksToBounds = YES;
-        self.backgroundColor = [UIColor clearColor];
         
-        CGFloat newWidth = self.width * 1.0;
-        CGFloat newHeight = self.height * 1.0;
+        // Arka plan rengi: Siyah, %80 opak (0.8 alpha)
+        self.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.8];
         
-        CGFloat xOffset = (self.width - newWidth) / 2;
-        CGFloat yOffset = (self.height - newHeight) / 2;
-
-        self.iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(xOffset, yOffset, newWidth, newHeight)];
+        // Kenarlık (border) yok
+        self.layer.borderWidth = 0.0;
         
-        NSString *imageDataBase64 = [ImageResources getFloatButtonImageBase64];     
-        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:imageDataBase64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        UIImage *image = [UIImage imageWithData:imageData];
-        self.iconImageView.image = image;
-        
-        [self addSubview:self.iconImageView];
-        [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(iconOnClick)]];
+        // İçine hiçbir resim veya yazı eklemiyoruz.
     }
     return self;
 }
@@ -79,12 +50,7 @@
 - (void)openTelegramIfFirstTimeInSession {
     if (!hasOpenedMenuInThisSession) {
         hasOpenedMenuInThisSession = YES; 
-
-        //NSString *encodedURL = @"aHR0cHM6Ly90Lm1lL2lTQThFUg==";
-        //NSString *decodedURL = [self decodeBase64:encodedURL]; 
-
-        //NSURL *url = [NSURL URLWithString:decodedURL];
-        //[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        // İstersen buraya menü ilk açıldığında Telegram açma kodu ekleyebilirsin
     }
 }
 
@@ -128,6 +94,5 @@
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     self.didMoveLocation = CGPointMake(self.left, self.superview.height - self.bottom);
 }
-
 
 @end
