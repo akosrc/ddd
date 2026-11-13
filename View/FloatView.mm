@@ -22,24 +22,24 @@
     hasOpenedMenuInThisSession = NO; 
 
     if (self = [super initWithFrame:frame]) {
-        // --- SADECE SİYAH YARI SAYDAM DAİRE TASARIMI ---
-        
-        // Butonu tam yuvarlak yap
+        // --- GÖRÜNÜM AYARLARI ---
         self.layer.cornerRadius = frame.size.width / 2.0; 
         self.layer.masksToBounds = YES;
         
-        // Arka plan rengi: Siyah, %80 opak (0.8 alpha)
-        self.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.8];
-        
-        // Kenarlık (border) yok
+        // Arka plan rengi: Test için Kırmızı. (Çalışınca siyah yapacağız)
+        self.backgroundColor = [UIColor redColor]; 
         self.layer.borderWidth = 0.0;
         
-        // İçine hiçbir resim veya yazı eklemiyoruz.
+        // --- TIKLAMA ÖZELLİĞİ BURADA EKLENİYOR ---
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(iconOnClick)];
+        [self addGestureRecognizer:tapGesture];
+        self.userInteractionEnabled = YES;
     }
     return self;
 }
 
 - (void)iconOnClick {
+    // Menüyü aç/kapa
     self.moduleControl->menuStatus = !self.moduleControl->menuStatus;
     
     if (self.moduleControl->menuStatus) {
@@ -50,10 +50,10 @@
 - (void)openTelegramIfFirstTimeInSession {
     if (!hasOpenedMenuInThisSession) {
         hasOpenedMenuInThisSession = YES; 
-        // İstersen buraya menü ilk açıldığında Telegram açma kodu ekleyebilirsin
     }
 }
 
+// Butonu sürükleme özelliği
 - (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
     CGPoint pt = [[touches anyObject] locationInView:self];
     _startLocation = pt;
@@ -74,25 +74,9 @@
     newcenter.y = MAX(halfy, newcenter.y);
     newcenter.y = MIN(self.superview.bounds.size.height - halfy, newcenter.y);
     
-    CGFloat bottom = self.superview.height - newcenter.y - 0.5 * self.height;
-    if (bottom < 0) {
-        bottom = 0;
-    }
-    
-    float height = [UIScreen mainScreen].bounds.size.height;
-    if (bottom > height) {
-        bottom = height;
-    }
-    
-    newcenter.y = self.superview.height - bottom - 0.5 * self.height;
-    
     self.center = newcenter;
-    
-    self.didMoveLocation = CGPointMake(self.left, self.superview.height - self.bottom);
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    self.didMoveLocation = CGPointMake(self.left, self.superview.height - self.bottom);
-}
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {}
 
 @end
