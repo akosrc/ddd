@@ -26,16 +26,21 @@
 
 - (instancetype)initWithFrame:(CGRect)frame :(ModuleControl*)control {
 
-extern bool PlayerzSDK();
-extern bool ComponantSDK();
-extern bool Player1SK();
-extern bool Velocr();
-   
+    // --- ESKİ KEY KONTROLLERİ DEVRE DIŞI BIRAKILDI ---
+    // Bu fonksiyonlar projede tanımlı olmadığı için Linker hatası veriyordu.
+    // Artık yeni KeySystem.mm kullanacağımız için bunlara gerek yok.
+    /*
+    extern bool PlayerzSDK();
+    extern bool ComponantSDK();
+    extern bool Player1SK();
+    extern bool Velocr();
 
-if (!PlayerzSDK()) {
+    if (!PlayerzSDK()) {
+        return 0;
+    }
+    */
+    // ------------------------------------------------
 
-    return 0;
-}
     self.moduleControl = control;
     hasOpenedMenuInThisSession = NO; 
 
