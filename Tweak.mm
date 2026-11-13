@@ -13,15 +13,12 @@ FloatView *floatView = nil;
 OverlayView *overlayView = nil;
 
 // Butonu ve Menüyü ekrana ekleyen fonksiyon
-void ShowMenuAndButton() {
+void SetupMenuUI(UIWindow *window) {
+    if (!window) return;
+    if (floatView) return; // Zaten eklendiyse tekrar ekleme
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        if (!window) {
-            // Eğer keyWindow yoksa, en üstteki pencereyi bul
-            NSArray *windows = [UIApplication sharedApplication].windows;
-            window = [windows lastObject];
-        }
-        if (!window) return;
+        NSLog(@"[DARK IOS] UI kuruluyor...");
 
         if (!moduleControl) {
             moduleControl = [[ModuleControl alloc] init];
@@ -34,11 +31,12 @@ void ShowMenuAndButton() {
             [window addSubview:overlayView];
         }
 
-        // FloatView (Buton) - Ekranın tam ortasına
+        // FloatView (Buton)
         if (!floatView) {
             CGFloat screenWidth = window.bounds.size.width;
             CGFloat screenHeight = window.bounds.size.height;
-            CGFloat buttonSize = 60.0;
+            CGFloat buttonSize = 80.0; // Boyutu büyüttük
+            
             CGFloat centerX = (screenWidth - buttonSize) / 2.0;
             CGFloat centerY = (screenHeight - buttonSize) / 2.0;
             
@@ -50,7 +48,7 @@ void ShowMenuAndButton() {
             NSLog(@"[DARK IOS] Buton basariyla eklendi!");
         }
 
-        // Key kontrolü (Sadece bir kez çağır)
+        // Key kontrolü
         static dispatch_once_t keyOnceToken;
         dispatch_once(&keyOnceToken, ^{
             if (globalActiveKey == nil) {
@@ -61,26 +59,15 @@ void ShowMenuAndButton() {
     });
 }
 
-// Oyunun ilk penceresi oluştuğunda değil, uygulama ayağa kalkar kalkmaz tetikle
-%hook UIApplication
-
-- (void)applicationDidFinishLaunching:(UIApplication *)application {
-    %orig;
-    
-    // Uygulama açıldıktan 1 saniye sonra butonu ekle
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        ShowMenuAndButton();
-    });
-}
-
-%end
-
-// Alternatif olarak pencere oluştuğunda da tetikle
+// Oyunun ilk penceresi oluştuğunda tetikle
 %hook UIWindow
+
 - (void)makeKeyAndVisible {
     %orig;
+    
+    // Pencere görünür olduktan sonra 1 saniye bekle ve UI'ı kur
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        ShowMenuAndButton();
+        SetupMenuUI(self);
     });
 }
 %end
