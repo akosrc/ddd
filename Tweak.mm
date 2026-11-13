@@ -4,22 +4,17 @@
 #import "Menux/Menu.h"
 #import "View/OverlayView.h"
 
-// --- KEY SİSTEMİ ENTEGRASYONU ---
-extern void showKeyMenu(void);
-extern NSString* globalActiveKey;
-// --------------------------------
-
-// Global değişkenler (Menü ve Overlay için)
+// Global değişkenler
 ModuleControl *moduleControl = nil;
 FloatView *floatView = nil;
 OverlayView *overlayView = nil;
 
-%hook UIWindow
+%hook UIViewController
 
-- (void)makeKeyAndVisible {
+- (void)viewDidAppear:(BOOL)animated {
     %orig;
     
-    // Sadece bir kere çalışmasını sağla
+    // Sadece bir kere çalışmasını sağla (her ekran açılışında tekrar etmesin)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -31,16 +26,16 @@ OverlayView *overlayView = nil;
             
             // 2. OverlayView'i (ImGui Çizim Ekranı) oluştur
             if (!overlayView) {
-                overlayView = [[OverlayView alloc] initWithFrame:self.bounds :moduleControl :[[mi alloc] initWithFrame:self.bounds :moduleControl]];
+                overlayView = [[OverlayView alloc] initWithFrame:[UIScreen mainScreen].bounds :moduleControl :[[mi alloc] initWithFrame:[UIScreen mainScreen].bounds :moduleControl]];
                 overlayView.userInteractionEnabled = YES;
-                [self addSubview:overlayView];
+                [[UIApplication sharedApplication].keyWindow addSubview:overlayView];
             }
             
             // 3. FloatView (Süzülen Buton) oluştur ve ekrana ekle
             if (!floatView) {
                 CGRect frame = CGRectMake(10, 100, 60, 60); // Butonun konumu ve boyutu
                 floatView = [[FloatView alloc] initWithFrame:frame :moduleControl];
-                [self addSubview:floatView];
+                [[UIApplication sharedApplication].keyWindow addSubview:floatView];
             }
             
             NSLog(@"[DARK IOS] Tweak basariyla yuklendi ve buton eklendi!");
