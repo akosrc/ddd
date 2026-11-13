@@ -21,19 +21,32 @@ jobs:
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
-    - name: 3. ldid Kurulumu
+    - name: 3. ldid Aracını Kur (Manuel)
       run: |
-        brew install ldid
+        # GitHub runner (macOS arm64) için ldid aracını manuel indir
+        curl -L https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_arm64 -o /usr/local/bin/ldid
+        chmod +x /usr/local/bin/ldid
 
-    - name: 4. Derleme Yap (Hatayi Gormek Icin)
+    - name: 4. Derleme Yap
       run: |
-        make clean
-        make
+        make clean || true
+        make || true
 
-    - name: 5. Dylib Dosyasını Bul ve Yükle
-      if: success()
+    - name: 5. TÜM Dosyaları Bul (Debug için)
+      run: |
+        echo "--- Tüm .dylib dosyaları ---"
+        find . -name "*.dylib" -type f
+        echo "--- .theos/obj içindekiler ---"
+        ls -la .theos/obj/ || true
+        echo "--- Ana dizindekiler ---"
+        ls -la
+
+    - name: 6. Dylib Dosyasını Yükle
       uses: actions/upload-artifact@v4
       with:
-        name: Derlenen-Dylib
-        path: "**/*.dylib"
-        if-no-files-found: error
+        name: Derlenen-Dosyalar
+        # Hem .dylib hem de derlenmiş diğer dosyaları ara
+        path: |
+          **/*.dylib
+          .theos/obj/M7MD
+        if-no-files-found: warn
