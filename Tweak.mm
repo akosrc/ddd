@@ -8,68 +8,66 @@
 extern void showKeyMenu(void);
 extern NSString* globalActiveKey;
 
+// Global değişkenler
 ModuleControl *moduleControl = nil;
 FloatView *floatView = nil;
 OverlayView *overlayView = nil;
 
-// Butonu ve Menüyü ekrana ekleyen fonksiyon
-void SetupMenuUI(UIWindow *window) {
-    if (!window) return;
-    if (floatView) return; // Zaten eklendiyse tekrar ekleme
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"[DARK IOS] UI kuruluyor...");
-
-        if (!moduleControl) {
-            moduleControl = [[ModuleControl alloc] init];
-        }
-
-        // OverlayView (Menü arka planı)
-        if (!overlayView) {
-            overlayView = [[OverlayView alloc] initWithFrame:window.bounds :moduleControl :[[mi alloc] initWithFrame:window.bounds :moduleControl]];
-            overlayView.userInteractionEnabled = YES;
-            [window addSubview:overlayView];
-        }
-
-        // FloatView (Buton)
-        if (!floatView) {
-            CGFloat screenWidth = window.bounds.size.width;
-            CGFloat screenHeight = window.bounds.size.height;
-            CGFloat buttonSize = 80.0; // Boyutu büyüttük
-            
-            CGFloat centerX = (screenWidth - buttonSize) / 2.0;
-            CGFloat centerY = (screenHeight - buttonSize) / 2.0;
-            
-            CGRect frame = CGRectMake(centerX, centerY, buttonSize, buttonSize);
-            floatView = [[FloatView alloc] initWithFrame:frame :moduleControl];
-            [window addSubview:floatView];
-            [window bringSubviewToFront:floatView]; // Her zaman en önde tut
-            
-            NSLog(@"[DARK IOS] Buton basariyla eklendi!");
-        }
-
-        // Key kontrolü
-        static dispatch_once_t keyOnceToken;
-        dispatch_once(&keyOnceToken, ^{
-            if (globalActiveKey == nil) {
-                NSLog(@"[DARK IOS] Key girisi bekleniyor...");
-                showKeyMenu();
-            }
-        });
-    });
-}
-
-// Oyunun ilk penceresi oluştuğunda tetikle
 %hook UIWindow
 
 - (void)makeKeyAndVisible {
     %orig;
     
-    // Pencere görünür olduktan sonra 1 saniye bekle ve UI'ı kur
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        SetupMenuUI(self);
+    // Sadece bir kere çalışmasını sağla
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // Oyunun tam açılması için 2 saniye bekle
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            
+            NSLog(@"[DARK IOS] Menü ve buton ekleniyor...");
+            
+            // 1. Menü kontrolcüsünü oluştur
+            if (!moduleControl) {
+                moduleControl = [[ModuleControl alloc] init];
+            }
+            
+            // 2. OverlayView'i oluştur
+            if (!overlayView) {
+                overlayView = [[OverlayView alloc] initWithFrame:self.bounds :moduleControl :[[mi alloc] initWithFrame:self.bounds :moduleControl]];
+                overlayView.userInteractionEnabled = YES;
+                [self addSubview:overlayView];
+            }
+            
+            // 3. FloatView (Buton) oluştur ve ekranın tam ortasına ekle
+            if (!floatView) {
+                CGFloat screenWidth = self.bounds.size.width;
+                CGFloat screenHeight = self.bounds.size.height;
+                CGFloat buttonSize = 60.0;
+                
+                CGFloat centerX = (screenWidth - buttonSize) / 2.0;
+                CGFloat centerY = (screenHeight - buttonSize) / 2.0;
+                
+                CGRect frame = CGRectMake(centerX, centerY, buttonSize, buttonSize);
+                
+                floatView = [[FloatView alloc] initWithFrame:frame :moduleControl];
+                [self addSubview:floatView];
+                [self bringSubviewToFront:floatView]; // Her zaman en önde tut
+                
+                NSLog(@"[DARK IOS] Buton basariyla eklendi!");
+            }
+            
+            // 4. Key kontrolü
+            if (globalActiveKey == nil) {
+                NSLog(@"[DARK IOS] Key girisi bekleniyor...");
+                showKeyMenu();
+            } else {
+                NSLog(@"[DARK IOS] Key dogrulandi. Sistem hazir.");
+            }
+
+        });
     });
 }
+
 %end
 
 
