@@ -135,3 +135,54 @@ void setSpeedPlayer(bool state) {
         vm_writeData(0x102C10D84, 0x0810281E);
     }
 }
+
+// --- Tamamlanan playerstatus funksiyası ---
+std::wstring playerstatus(int GetEnemyState) {
+    switch (GetEnemyState) {
+        case 0:
+            return L"AFK";
+            break;
+        case 1032:
+            return L"TILT HEAD";
+            break;
+        case 268435464:
+            return L"PLAY EMOTION";
+            break;
+        case 1552:
+            return L"AIMING";
+            break;
+        case 8388616:
+            return L"PARACHUTE";
+            break;
+        case 131072:
+            return L"KNOCKED";
+            break;
+        case 33554440:
+            return L"PLANE";
+            break;
+        case 8205:
+            return L"SHOT";
+            break;
+        case 32:
+            return L"SIT";
+            break;
+        case 4194303:
+            return L"SWIMMING";
+            break;
+        case 72:
+            return L"JUMPING";
+            break;
+        case 8388608:
+            return L"PARACHUTE";
+            break;
+        case 16392:
+            return L"JUMPING";
+            break;
+        case 65536:
+            return L"DRIVING";
+            break;
+        default:
+            return L"UNKNOWN";
+            break;
+    }
+}
