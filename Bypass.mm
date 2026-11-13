@@ -3,11 +3,11 @@
 #import <objc/runtime.h>
 
 // ============================================
-// iOS ANTI-BAN / BYPASS SİSTEMİ (v1.0)
-// Oyunun raporlama ve tespit mekanizmalarını engeller
+// iOS ANTI-BAN / BYPASS SİSTEMİ (v2.0 - Advanced)
+// Android C++ Bypass Mantığının iOS Karşılığı
 // ============================================
 
-// --- 1. YARDIMCI FONKSİYONLAR (Lua Bypass Mantığı) ---
+// --- 1. YARDIMCI FONKSİYONLAR ---
 static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
     Method originalMethod = class_getInstanceMethod(cls, originalSelector);
     Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
@@ -17,13 +17,14 @@ static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector)
 }
 
 // --- 2. AĞ (NETWORK) SEVİYESİNDE RAPOR ENGELLEME ---
+// Android'deki "blockedStrings" ve "Report" engelleme mantığı
 @interface AntiBanURLProtocol : NSURLProtocol @end
 @implementation AntiBanURLProtocol
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     NSString *urlString = request.URL.absoluteString.lowercaseString;
     // Oyunun rapor gönderdiği bilinen URL kalıplarını engelle
-    NSArray *blockedKeywords = @[@"report", @"anticheat", @"exception", @"verify", @"log", @"telemetry", @"security", @"detect", @"cheat", @"ban", @"tss", @"crashsight"];
+    NSArray *blockedKeywords = @[@"report", @"anticheat", @"exception", @"verify", @"log", @"telemetry", @"security", @"detect", @"cheat", @"ban", @"tss", @"crashsight", @"mrpcs", @"higgs", @"case16", @"case35"];
     for (NSString *keyword in blockedKeywords) {
         if ([urlString containsString:keyword]) {
             NSLog(@"[DARK IOS BYPASS] Engellenen istek: %@", urlString);
@@ -51,20 +52,24 @@ static void InitializeAntiBan() {
         NSLog(@"[DARK IOS BYPASS] Ağ filtresi (AntiBanURLProtocol) aktif edildi.");
 
         // --- Oyun İçi Tespit Fonksiyonlarını Kapatma ---
+        // (Senin attığın C++ kodundaki Hook'ların iOS karşılıkları)
         
-        // 1. HiggsBoson (Anti-Cheat) Sınıfı
+        // 1. HiggsBoson (Anti-Cheat) Sınıfı - "UHiggsBosonComponent::RPC_ClientCoronaLab" Karşılığı
         Class higgsClass = NSClassFromString(@"HiggsBosonComponent");
         if (higgsClass) {
             swizzleMethod(higgsClass, NSSelectorFromString(@"ControlMHActive"), NSSelectorFromString(@"hooked_ControlMHActive"));
             swizzleMethod(higgsClass, NSSelectorFromString(@"ReportItemID"), NSSelectorFromString(@"hooked_ReportItemID"));
+            swizzleMethod(higgsClass, NSSelectorFromString(@"ClientCoronaLab"), NSSelectorFromString(@"hooked_ClientCoronaLab"));
             NSLog(@"[DARK IOS BYPASS] HiggsBoson Component devre dışı bırakıldı.");
         }
 
-        // 2. Güvenlik Raporlama Sınıfı
+        // 2. Güvenlik Raporlama Sınıfı - "UPlayerSecurityInfoCollector::FlushMrpcsFlow" Karşılığı
         Class secClass = NSClassFromString(@"PlayerSecurityInfoCollector");
         if (secClass) {
             swizzleMethod(secClass, NSSelectorFromString(@"ReportData"), NSSelectorFromString(@"hooked_ReportData"));
             swizzleMethod(secClass, NSSelectorFromString(@"SendToServer"), NSSelectorFromString(@"hooked_SendToServer"));
+            swizzleMethod(secClass, NSSelectorFromString(@"FlushMrpcsFlow"), NSSelectorFromString(@"hooked_FlushMrpcsFlow"));
+            swizzleMethod(secClass, NSSelectorFromString(@"ReportMrpcsFlow"), NSSelectorFromString(@"hooked_ReportMrpcsFlow"));
             NSLog(@"[DARK IOS BYPASS] PlayerSecurityInfoCollector devre dışı bırakıldı.");
         }
 
@@ -82,6 +87,13 @@ static void InitializeAntiBan() {
             swizzleMethod(tssClass, NSSelectorFromString(@"ScanMemory"), NSSelectorFromString(@"hooked_ScanMemory"));
             NSLog(@"[DARK IOS BYPASS] TssSdk raporlaması devre dışı bırakıldı.");
         }
+
+        // 5. Mrpcs / CRC Kontrolleri
+        Class mrpcsClass = NSClassFromString(@"MrpcsFlowSubsystem");
+        if (mrpcsClass) {
+            swizzleMethod(mrpcsClass, NSSelectorFromString(@"ReportMrpcsFlow"), NSSelectorFromString(@"hooked_ReportMrpcsFlow"));
+            NSLog(@"[DARK IOS BYPASS] MrpcsFlowSubsystem devre dışı bırakıldı.");
+        }
     });
 }
 
@@ -89,8 +101,11 @@ static void InitializeAntiBan() {
 @implementation NSObject (AntiBanHooks)
 - (void)hooked_ControlMHActive { /* Hiçbir şey yapma */ }
 - (void)hooked_ReportItemID { /* Hiçbir şey yapma */ }
+- (void)hooked_ClientCoronaLab { /* Hiçbir şey yapma */ }
 - (void)hooked_ReportData { /* Hiçbir şey yapma */ }
 - (void)hooked_SendToServer { /* Hiçbir şey yapma */ }
+- (void)hooked_FlushMrpcsFlow { /* Hiçbir şey yapma */ }
+- (void)hooked_ReportMrpcsFlow { /* Hiçbir şey yapma */ }
 - (void)hooked_ReportException { /* Hiçbir şey yapma */ }
 - (void)hooked_SendReportInfo { /* Hiçbir şey yapma */ }
 - (void)hooked_ScanMemory { /* Hiçbir şey yapma */ }
