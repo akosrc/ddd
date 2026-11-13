@@ -1,4 +1,4 @@
-name: Build Dylib Only
+name: Build Dylib to Packages
 
 on:
   push:
@@ -21,32 +21,28 @@ jobs:
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
-    - name: 3. ldid Aracını Kur (Manuel)
+    - name: 3. ldid Aracını Kur
       run: |
-        # GitHub runner (macOS arm64) için ldid aracını manuel indir
         curl -L https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_arm64 -o /usr/local/bin/ldid
         chmod +x /usr/local/bin/ldid
 
     - name: 4. Derleme Yap
       run: |
         make clean || true
-        make || true
+        make
 
-    - name: 5. TÜM Dosyaları Bul (Debug için)
+    - name: 5. Dylib Dosyasını Packages Klasörüne Kopyala
       run: |
-        echo "--- Tüm .dylib dosyaları ---"
-        find . -name "*.dylib" -type f
-        echo "--- .theos/obj içindekiler ---"
-        ls -la .theos/obj/ || true
-        echo "--- Ana dizindekiler ---"
-        ls -la
+        # Derlenen .dylib dosyasını bul ve senin oluşturduğun Packages klasörüne kopyala
+        find .theos/obj -name "*.dylib" -exec cp {} Packages/ \;
+        
+        # Klasörün içini kontrol et (Loglarda görmek için)
+        echo "Packages klasoru icerigi:"
+        ls -la Packages/
 
-    - name: 6. Dylib Dosyasını Yükle
+    - name: 6. Packages Klasöründeki Dosyaları Yükle
       uses: actions/upload-artifact@v4
       with:
-        name: Derlenen-Dosyalar
-        # Hem .dylib hem de derlenmiş diğer dosyaları ara
-        path: |
-          **/*.dylib
-          .theos/obj/M7MD
-        if-no-files-found: warn
+        name: Packages
+        path: Packages/
+        if-no-files-found: error
