@@ -9,36 +9,40 @@ ModuleControl *moduleControl = nil;
 FloatView *floatView = nil;
 OverlayView *overlayView = nil;
 
-%hook UIViewController
+%hook UIWindow
 
-- (void)viewDidAppear:(BOOL)animated {
+- (void)makeKeyAndVisible {
     %orig;
     
-    // Sadece bir kere çalışmasını sağla (her ekran açılışında tekrar etmesin)
+    // Sadece bir kere çalışmasını sağla
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             
             // 1. Menü kontrolcüsünü oluştur
             if (!moduleControl) {
                 moduleControl = [[ModuleControl alloc] init];
             }
             
-            // 2. OverlayView'i (ImGui Çizim Ekranı) oluştur
+            // 2. OverlayView'i oluştur (Arka plan çizimi için)
             if (!overlayView) {
-                overlayView = [[OverlayView alloc] initWithFrame:[UIScreen mainScreen].bounds :moduleControl :[[mi alloc] initWithFrame:[UIScreen mainScreen].bounds :moduleControl]];
+                overlayView = [[OverlayView alloc] initWithFrame:self.bounds :moduleControl :[[mi alloc] initWithFrame:self.bounds :moduleControl]];
                 overlayView.userInteractionEnabled = YES;
-                [[UIApplication sharedApplication].keyWindow addSubview:overlayView];
+                [self addSubview:overlayView];
             }
             
-            // 3. FloatView (Süzülen Buton) oluştur ve ekrana ekle
+            // 3. FloatView (Süzülen Buton) oluştur
             if (!floatView) {
-                CGRect frame = CGRectMake(10, 100, 60, 60); // Butonun konumu ve boyutu
+                // Buton boyutu ve konumu (Ekranın sol üstüne yakın)
+                CGRect frame = CGRectMake(20, 150, 60, 60); 
                 floatView = [[FloatView alloc] initWithFrame:frame :moduleControl];
-                [[UIApplication sharedApplication].keyWindow addSubview:floatView];
+                
+                // Butonu en öne getir
+                [self addSubview:floatView];
+                [self bringSubviewToFront:floatView];
             }
             
-            NSLog(@"[DARK IOS] Tweak basariyla yuklendi ve buton eklendi!");
+            NSLog(@"[DARK IOS] Tweak yuklendi, buton eklendi!");
         });
     });
 }
@@ -46,7 +50,7 @@ OverlayView *overlayView = nil;
 %end
 
 
-// --- ESKİ HAFIZA KODLARI (KULLANILMIYOR AMA SİLİNMESİN) ---
+// --- ESKİ HAFIZA KODLARI (Aynen korundu) ---
 bool LockStatus = false;
 bool SpeedPlayer = false;
 
@@ -110,4 +114,3 @@ void setSpeedPlayer(bool state) {
         vm_writeData(0x102C10D84, 0x0810281E);
     }
 }
-// --------------------------------------------------------
