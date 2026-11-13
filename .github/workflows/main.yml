@@ -13,26 +13,33 @@ jobs:
     - name: 1. Depoyu Klonla
       uses: actions/checkout@v4
 
-    - name: 2. Theos Kurulumu (Alt Modüllerle Birlikte)
+    - name: 2. Theos ve ldid Kurulumu
       run: |
         export THEOS=$HOME/theos
         export GIT_TERMINAL_PROMPT=0
         git clone --recursive https://github.com/theos/theos.git $THEOS
+        
+        # ldid'yi manuel indirip PATH'e ekleyelim (brew bazen sorun çıkarıyor)
+        curl -L https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64 -o /usr/local/bin/ldid
+        chmod +x /usr/local/bin/ldid
+        
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
-    - name: 3. ldid Aracını Kur (İmzalama için gerekli)
-      run: |
-        brew install ldid
-
-    - name: 4. Derleme Yap (Sadece Dylib)
+    - name: 3. Derleme Yap (Sadece Dylib)
       run: |
         make clean || true
         make
 
-    - name: 5. Dylib Dosyasını Bul ve İndirme Butonu Olarak Yükle
+    - name: 4. Dylib Dosyasını Bul (Tüm klasörlerde ara)
+      run: |
+        # Tüm .dylib dosyalarını bul ve listele
+        find . -name "*.dylib" -type f
+
+    - name: 5. Dylib Dosyasını Yükle
       uses: actions/upload-artifact@v4
       with:
         name: Derlenen-Dylib
+        # .theos klasörü dahil her yerde ara
         path: "**/*.dylib"
         if-no-files-found: warn
