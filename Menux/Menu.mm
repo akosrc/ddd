@@ -868,6 +868,10 @@ void DrawSettingsTab() {
 
 @implementation mi
 
+// EKSİK OLAN DEĞİŞKEN TANIMLARI EKLENDİ
+INI* config;
+OverlayView *overlayView;
+
 - (instancetype)initWithFrame:(ModuleControl*)control {
     self.moduleControl = control;
     
