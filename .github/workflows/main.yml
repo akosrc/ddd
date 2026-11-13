@@ -21,18 +21,19 @@ jobs:
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
-    - name: 3. ldid Kurulumu (Homebrew ile)
+    - name: 3. ldid Kurulumu
       run: |
         brew install ldid
 
-    - name: 4. Derleme Yap
+    - name: 4. Derleme Yap (Hatayi Gormek Icin)
       run: |
-        make clean || true
-        make || true
+        make clean
+        make
 
     - name: 5. Dylib Dosyasını Bul ve Yükle
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: Derlenen-Dylib
         path: "**/*.dylib"
-        if-no-files-found: warn
+        if-no-files-found: error
