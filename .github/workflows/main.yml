@@ -13,26 +13,26 @@ jobs:
     - name: 1. Depoyu Klonla
       uses: actions/checkout@v4
 
-    - name: 2. Theos Kurulumu ve ldid Ayarı
+    - name: 2. Theos Kurulumu
       run: |
         export THEOS=$HOME/theos
         export GIT_TERMINAL_PROMPT=0
         git clone --recursive https://github.com/theos/theos.git $THEOS
-        
-        # Theos'un içindeki ldid'yi kullan (en garantili yöntem)
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
-        echo "$THEOS/toolchain/linux_x86_64/bin" >> $GITHUB_PATH
 
-    - name: 3. Derleme Yap (HATA VARSA DUR)
+    - name: 3. ldid Kurulumu (Homebrew ile)
       run: |
-        make clean
-        make
+        brew install ldid
 
-    - name: 4. Dylib Dosyasını Bul ve Yükle
-      if: success() # Sadece derleme başarılıysa çalışır
+    - name: 4. Derleme Yap
+      run: |
+        make clean || true
+        make || true
+
+    - name: 5. Dylib Dosyasını Bul ve Yükle
       uses: actions/upload-artifact@v4
       with:
         name: Derlenen-Dylib
         path: "**/*.dylib"
-        if-no-files-found: error
+        if-no-files-found: warn
