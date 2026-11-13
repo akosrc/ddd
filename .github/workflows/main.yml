@@ -16,19 +16,21 @@ jobs:
     - name: 2. Theos Kurulumu (Alt Modüllerle Birlikte)
       run: |
         export THEOS=$HOME/theos
-        # Git'in kimlik doğrulama istemesini engelle
         export GIT_TERMINAL_PROMPT=0
-        # Theos'u tüm alt modülleriyle (vendor/include, vendor/lib vb.) klonla
         git clone --recursive https://github.com/theos/theos.git $THEOS
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
-    - name: 3. Derleme Yap (Sadece Dylib)
+    - name: 3. ldid Aracını Kur (İmzalama için gerekli)
+      run: |
+        brew install ldid
+
+    - name: 4. Derleme Yap (Sadece Dylib)
       run: |
         make clean || true
         make
 
-    - name: 4. Dylib Dosyasını Bul ve İndirme Butonu Olarak Yükle
+    - name: 5. Dylib Dosyasını Bul ve İndirme Butonu Olarak Yükle
       uses: actions/upload-artifact@v4
       with:
         name: Derlenen-Dylib
