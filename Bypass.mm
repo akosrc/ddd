@@ -23,7 +23,7 @@ static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector)
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     NSString *urlString = request.URL.absoluteString.lowercaseString;
     // Oyunun rapor gönderdiği bilinen URL kalıplarını engelle
-    NSArray *blockedKeywords = @[@"report", @"anticheat", @"exception", @"verify", @"log", @"telemetry", @"security", @"detect", @"cheat", @"ban"];
+    NSArray *blockedKeywords = @[@"report", @"anticheat", @"exception", @"verify", @"log", @"telemetry", @"security", @"detect", @"cheat", @"ban", @"tss", @"crashsight"];
     for (NSString *keyword in blockedKeywords) {
         if ([urlString containsString:keyword]) {
             NSLog(@"[DARK IOS BYPASS] Engellenen istek: %@", urlString);
@@ -51,7 +51,6 @@ static void InitializeAntiBan() {
         NSLog(@"[DARK IOS BYPASS] Ağ filtresi (AntiBanURLProtocol) aktif edildi.");
 
         // --- Oyun İçi Tespit Fonksiyonlarını Kapatma ---
-        // (Bu kısım oyunun Objective-C sınıflarını hedefler, Lua Bypass mantığının iOS karşılığıdır)
         
         // 1. HiggsBoson (Anti-Cheat) Sınıfı
         Class higgsClass = NSClassFromString(@"HiggsBosonComponent");
