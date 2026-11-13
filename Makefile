@@ -19,3 +19,4 @@ M7MD_FILES = $(wildcard Menux/*.mm)$(wildcard 菜单/*.mm) $(wildcard View/*.mm)
 
 
 include $(THEOS)/makefiles/tweak.mk
+
