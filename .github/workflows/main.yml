@@ -13,30 +13,13 @@ jobs:
     - name: 1. Depoyu Klonla
       uses: actions/checkout@v4
 
-    - name: 2. Theos Kurulumu (Manuel Vendor)
+    - name: 2. Theos Kurulumu (Alt Modüllerle Birlikte)
       run: |
         export THEOS=$HOME/theos
-        mkdir -p $THEOS
-        
-        # Theos ana dosyalarını ZIP ile indir
-        curl -L https://github.com/theos/theos/archive/refs/heads/master.zip -o theos.zip
-        unzip -q theos.zip
-        mv theos-master/* $THEOS
-        rm -rf theos.zip theos-master
-        
-        # vendor/include klasörünü oluştur ve headers'ı oraya çıkart
-        mkdir -p $THEOS/vendor
-        curl -L https://github.com/theos/headers/archive/refs/heads/master.zip -o headers.zip
-        unzip -q headers.zip
-        mv headers-master $THEOS/vendor/include
-        rm -rf headers.zip
-        
-        # vendor/lib klasörünü oluştur ve libs'i oraya çıkart
-        curl -L https://github.com/theos/lib/archive/refs/heads/master.zip -o lib.zip
-        unzip -q lib.zip
-        mv lib-master $THEOS/vendor/lib
-        rm -rf lib.zip
-        
+        # Git'in kimlik doğrulama istemesini engelle
+        export GIT_TERMINAL_PROMPT=0
+        # Theos'u tüm alt modülleriyle (vendor/include, vendor/lib vb.) klonla
+        git clone --recursive https://github.com/theos/theos.git $THEOS
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
