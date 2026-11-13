@@ -289,7 +289,6 @@ namespace Settings {
     static int Tab = 0;
 }
 
-
 namespace Colors {
     const ImVec4 Black = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
     const ImVec4 DarkGray = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
@@ -574,7 +573,6 @@ void DrawMainTab() {
     std::wstring b2 = j2(m8(std::string([b1 UTF8String])));
     std::string finalUrl(b2.begin(), b2.end());
 
-    // HATA BURADAYDI: buttonLabel yerine finalUrl kullanıldı
     if (ImGui::Button(finalUrl.c_str(), ImVec2(280, 140))) {
         NSString *urlString = [NSString stringWithUTF8String:finalUrl.c_str()];
         NSURL *url = [NSURL URLWithString:urlString];
@@ -868,6 +866,32 @@ void DrawSettingsTab() {
 
 // ============= MAIN MENU WINDOW =============
 
+@implementation mi
+
+- (instancetype)initWithFrame:(ModuleControl*)control {
+    self.moduleControl = control;
+    
+    NSString *documentsDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"dolphins.ini"];
+    if(![fileManager fileExistsAtPath:filePath]){
+        [fileManager createFileAtPath:filePath contents:[NSData data] attributes:nil];
+    }
+    config = ini_load((char*)filePath.UTF8String);
+    return [super init];
+}
+
+-(void)setOverlayView:(OverlayView*)ov{
+    overlayView = ov;
+    [self readIniConfig];
+}
+
+- (void)initializeImGui {
+    ImGuiIO& io = ImGui::GetIO();
+    NSString *fontPath = [[NSBundle mainBundle] pathForResource:@"SourGummy-Regular" ofType:@"otf"];
+    io.Fonts->AddFontFromFileTTF([fontPath UTF8String], 24.0f);
+}
+
 -(void)drawMenuWindow {
     ImGui::CreateContext();
     ApplyModernDarkTheme();
@@ -932,8 +956,6 @@ void DrawSettingsTab() {
     }
     ImGui::End();
 }
-
-// ============= UTILITY FUNCTIONS =============
 
 - (UIWindow*)GetUIW {
     UIWindow *window = [UIApplication sharedApplication].keyWindow;
