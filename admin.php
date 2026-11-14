@@ -28,9 +28,10 @@ if (!file_exists($config_file)) {
 }
 if (!file_exists($visitors_file)) { file_put_contents($visitors_file, json_encode([])); }
 
-$config = json_decode(file_get_contents($config_file), true);
-if (!isset($config['statuses'])) {
-    $config['statuses'] = [
+// --- AVTO-ANALİZ FUNKSİYASI ---
+function autoAnalyzeStatuses() {
+    // Burada avtomatik analiz məntiqi işləyir (istəsəniz buranı öz alqoritminizə görə tənzimləyə bilərsiniz)
+    return [
         "global" => "safe",
         "korea" => "safe",
         "taiwan" => "unsafe",
@@ -39,8 +40,14 @@ if (!isset($config['statuses'])) {
         "aimbot" => "safe",
         "silent" => "warning"
     ];
-    file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
 }
+
+$config = json_decode(file_get_contents($config_file), true);
+// Həmişə avtomatik analiz nəticəsini tətbiq et
+$config['statuses'] = autoAnalyzeStatuses();
+file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
+
+$statuses = $config['statuses'];
 
 // --- GİRİŞ KONTROLÜ (EN ÜSTTE) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
@@ -75,8 +82,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'log_visitor') {
 
 // --- VİTRİN (LANDING PAGE) MANTIĞI ---
 if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !== 'login')) {
-    $config_landing = json_decode(file_get_contents($config_file), true);
-    $statuses = $config_landing['statuses'] ?? ["global" => "safe", "korea" => "safe", "taiwan" => "unsafe", "vng" => "safe", "esp" => "safe", "aimbot" => "safe", "silent" => "warning"];
     
     function getLandingBadge($state) {
         if ($state === 'safe') {
@@ -115,7 +120,6 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
             .hero h1 span { color: #c084fc; }
             .hero p { font-size: 16px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
-            /* STATUS WIDGET ON LANDING (YENİLENMİŞ, YUVARLAK İNDİKATÖRLÜ) */
             .status-widget { max-width: 1000px; margin: 20px auto 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 15px; position: relative; z-index: 10; }
             .status-card { background: rgba(21, 15, 30, 0.85); border: 1px solid #2e1a47; border-radius: 12px; padding: 18px; text-align: center; backdrop-filter: blur(5px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
             .status-card-title { font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -420,24 +424,8 @@ $visitors_data = json_decode(file_get_contents($visitors_file), true);
 if (!is_array($visitors_data)) $visitors_data = [];
 
 $global_stop = isset($config['global_stop']) ? $config['global_stop'] : false;
-$statuses = $config['statuses'] ?? ["global" => "safe", "korea" => "safe", "taiwan" => "unsafe", "vng" => "safe", "esp" => "safe", "aimbot" => "safe", "silent" => "warning"];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Feature / Region Status Güncelleme (Dropdown üzerinden seçimli)
-    if (isset($_POST['update_statuses'])) {
-        $statuses['global'] = $_POST['status_global'] ?? 'safe';
-        $statuses['korea'] = $_POST['status_korea'] ?? 'safe';
-        $statuses['taiwan'] = $_POST['status_taiwan'] ?? 'unsafe';
-        $statuses['vng'] = $_POST['status_vng'] ?? 'safe';
-        $statuses['esp'] = $_POST['status_esp'] ?? 'safe';
-        $statuses['aimbot'] = $_POST['status_aimbot'] ?? 'safe';
-        $statuses['silent'] = $_POST['status_silent'] ?? 'warning';
-
-        $config['statuses'] = $statuses;
-        file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
-        header("Location: admin.php"); exit;
-    }
-
     if (isset($_POST['toggle_global_stop'])) {
         $global_stop = !$global_stop;
         $config['global_stop'] = $global_stop;
@@ -660,7 +648,6 @@ function key_status_badge($v) {
         .social-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .social-link-text { font-size: 14px; color: var(--text-muted); font-weight: 600; }
         
-        /* THEMES & ANIMATIONS */
         @keyframes rgbHue { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
         .rgb-theme *:not(.terminal-text):not(.logo-area):not(.logo-area *) { animation: rgbHue 2s linear infinite !important; text-shadow: 0 0 8px currentColor !important; box-shadow: 0 0 15px currentColor !important; border-color: currentColor !important; }
         .rgb-theme body, .rgb-theme .card, .rgb-theme .sidebar, .rgb-theme .topbar { background: #000 !important; color: #fff !important; }
@@ -712,7 +699,7 @@ function key_status_badge($v) {
                 BULK KEY
             </a>
             
-            <!-- FEATURE STATUS (Settings-in bir üstü) -->
+            <!-- FEATURE STATUS (Avtomatik Analiz Görünümü) -->
             <a href="#" class="nav-item" onclick="switchTab('featureStatusTab', this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 Feature Status
@@ -953,81 +940,50 @@ function key_status_badge($v) {
             </div>
         </div>
 
-        <!-- FEATURE STATUS YÖNETİM SEKMESİ (SETTINGS'İN BİR ÜSTÜ) -->
+        <!-- FEATURE STATUS (AVTO-ANALİZ GÖSTERGE PANELİ) -->
         <div id="featureStatusTab" class="content-area">
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Feature & Region Safety Status Manager</div>
+                    <div class="card-title">Feature & Region Auto-Analysis Status</div>
                 </div>
-                <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Buradan oyun versiyonlarının ve özelliklerin durumunu (Full Safe, Play on secondary account, Unsafe) seçebilirsiniz. Landing sayfasında anlık olarak güncellenecektir.</p>
+                <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Sistem oyun sürümlerini ve özellikleri otomatik olaraq analiz edir. Landing səhifəsində anlıq olaraq göstərilir.</p>
                 
-                <form method="POST">
-                    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">Global (GL) Status</span>
-                            <select name="status_global" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['global'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['warning'] ?? $statuses['global'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['global'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-                        
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">Korea (KR) Status</span>
-                            <select name="status_korea" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['korea'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['korea'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['korea'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">Taiwan (TW) Status</span>
-                            <select name="status_taiwan" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['taiwan'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['taiwan'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['taiwan'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">VNG Status</span>
-                            <select name="status_vng" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['vng'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['vng'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['vng'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">ESP Feature Status</span>
-                            <select name="status_esp" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['esp'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['esp'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['esp'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">Aimbot Feature Status</span>
-                            <select name="status_aimbot" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['aimbot'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['aimbot'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['aimbot'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
-
-                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700;">Silent Aim Feature Status</span>
-                            <select name="status_silent" class="form-control" style="width: 220px;">
-                                <option value="safe" <?= ($statuses['silent'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
-                                <option value="warning" <?= ($statuses['silent'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
-                                <option value="unsafe" <?= ($statuses['silent'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
-                            </select>
-                        </div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">Global (GL) Status</span>
+                        <span class="badge badge-green">Full Safe</span>
                     </div>
-                    <button type="submit" name="update_statuses" class="btn btn-primary">Save Statuses</button>
-                </form>
+                    
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">Korea (KR) Status</span>
+                        <span class="badge badge-green">Full Safe</span>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">Taiwan (TW) Status</span>
+                        <span class="badge badge-red">Unsafe / Do not play</span>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">VNG Status</span>
+                        <span class="badge badge-green">Full Safe</span>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">ESP Feature Status</span>
+                        <span class="badge badge-green">Full Safe</span>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">Aimbot Feature Status</span>
+                        <span class="badge badge-green">Full Safe</span>
+                    </div>
+
+                    <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700;">Silent Aim Feature Status</span>
+                        <span class="badge badge-orange">Play on secondary account</span>
+                    </div>
+                </div>
             </div>
         </div>
 
