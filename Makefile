@@ -7,8 +7,7 @@ TWEAK_NAME = M7MD
 
 M7MD_FILES = Dolphins.mm FloatView.mm OverlayView.mm mi.mm Bypass.mm KeySystem.mm ImageResources.m
 
-# Buraya ImGui və utils qovluqlarının yollarını əlavə edirik
-M7MD_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-function -I. -Iutils
+M7MD_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-function -I. -Iimgui -Iutils
 
 M7MD_FRAMEWORKS = UIKit Foundation CoreGraphics Metal QuartzCore
 
