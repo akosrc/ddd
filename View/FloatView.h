@@ -1,10 +1,10 @@
 #import <UIKit/UIKit.h>
 #include "../utils/module_tools.h"
 
-@interface mi : UIView {
+@interface FloatView : UIView {
     ModuleControl *pModuleControl;
 }
 
-- (instancetype)initWithModuleControl:(ModuleControl *)moduleControl;
+- (instancetype)initWithFrame:(CGRect)frame moduleControl:(ModuleControl *)moduleControl;
 
 @end
