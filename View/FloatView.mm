@@ -1,82 +1,60 @@
 #import "FloatView.h"
-#import "../CustomView/UIColor+Hex.h"
-#import <UIKit/UIKit.h>
-#import <NetworkExtension/NetworkExtension.h>
-#import "ImageResources.h"
 
 @implementation FloatView {
-    BOOL hasOpenedMenuInThisSession; 
-}
-
-+ (instancetype)sharedInstance :(ModuleControl*)control {
-    static FloatView *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] initWithFrame:CGRectZero :control];
-    });
-    return sharedInstance;
+    NSTimer *_fadeTimer;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame :(ModuleControl*)control {
-    self.moduleControl = control;
-    hasOpenedMenuInThisSession = NO; 
-
-    if (self = [super initWithFrame:frame]) {
-        // --- GÖRÜNÜM AYARLARI ---
-        self.layer.cornerRadius = frame.size.width / 2.0; 
-        self.layer.masksToBounds = YES;
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.moduleControl = control;
         
-        // Arka plan rengi: Test için Kırmızı. (Çalışınca siyah yapacağız)
-        self.backgroundColor = [UIColor redColor]; 
-        self.layer.borderWidth = 0.0;
+        // Dairəvi və kənarları səliqəli kəsilmiş dizayn
+        self.layer.cornerRadius = frame.size.width / 2.0;
+        self.clipsToBounds = YES;
+        self.backgroundColor = [UIColor clearColor]; // Şəffaf fond
+        self.alpha = 0.7f; // İlkin şəffaflıq 70%
         
-        // --- TIKLAMA ÖZELLİĞİ BURADA EKLENİYOR ---
-        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(iconOnClick)];
-        [self addGestureRecognizer:tapGesture];
-        self.userInteractionEnabled = YES;
+        // Şəkli düymənin içərisinə yerləşdiririk (Şəkil adını burada qeyd edirik)
+        UIImageView *logoImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        logoImageView.image = [UIImage imageNamed:@"dark.png"]; // Fayl adına uyğun olaraq dəyişə bilərsən (məs: dark.pnj.jpeg)
+        logoImageView.contentMode = UIViewContentModeScaleAspectFill;
+        logoImageView.layer.cornerRadius = frame.size.width / 2.0;
+        logoImageView.clipsToBounds = YES;
+        [self addSubview:logoImageView];
     }
     return self;
 }
 
-- (void)iconOnClick {
-    // Menüyü aç/kapa
-    self.moduleControl->menuStatus = !self.moduleControl->menuStatus;
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesBegan:touches withEvent:event];
     
-    if (self.moduleControl->menuStatus) {
-        [self openTelegramIfFirstTimeInSession];
+    // Üzərinə basıldıqda dərhal 100% (1.0) şəffaflığa çıxsın
+    [UIView animateWithDuration:0.2 animations:^{
+        self.alpha = 1.0f;
+    }];
+    
+    // Əvvəlki taymer varsa sıfırlayaq
+    if (_fadeTimer) {
+        [_fadeTimer invalidate];
+        _fadeTimer = nil;
+    }
+    
+    // Menyunu aç/bağla
+    if (self.moduleControl) {
+        self.moduleControl->menuStatus = !self.moduleControl->menuStatus;
     }
 }
 
-- (void)openTelegramIfFirstTimeInSession {
-    if (!hasOpenedMenuInThisSession) {
-        hasOpenedMenuInThisSession = YES; 
-    }
-}
-
-// Butonu sürükleme özelliği
-- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
-    CGPoint pt = [[touches anyObject] locationInView:self];
-    _startLocation = pt;
-    [[self superview] bringSubviewToFront:self];
-}
-
-- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
-    CGPoint pt = [[touches anyObject] locationInView:self];
-    float dx = pt.x - _startLocation.x;
-    float dy = pt.y - _startLocation.y;
-    CGPoint newcenter = CGPointMake(self.center.x + dx, self.center.y + dy);
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesEnded:touches withEvent:event];
     
-    float halfx = CGRectGetMidX(self.bounds);
-    newcenter.x = MAX(halfx, newcenter.x);
-    newcenter.x = MIN(self.superview.bounds.size.width - halfx, newcenter.x);
-    
-    float halfy = CGRectGetMidY(self.bounds);
-    newcenter.y = MAX(halfy, newcenter.y);
-    newcenter.y = MIN(self.superview.bounds.size.height - halfy, newcenter.y);
-    
-    self.center = newcenter;
+    // Toxunma bitdikdən 5 saniyə sonra yenidən 70% (0.7) şəffaflığa qayıtsın
+    _fadeTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        [UIView animateWithDuration:0.5 animations:^{
+            self.alpha = 0.7f;
+        }];
+    }];
 }
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {}
 
 @end
