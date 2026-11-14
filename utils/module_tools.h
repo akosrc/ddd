@@ -5,6 +5,13 @@
 #include <random>
 #include <string>
 
+// ImGui üçün ImVec3 strukturu əlavə olundu
+struct ImVec3 {
+    float x, y, z;
+    ImVec3() : x(0.0f), y(0.0f), z(0.0f) {}
+    ImVec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+};
+
 enum SystemStatus {
     WaitingResponse,
     SystemError,
