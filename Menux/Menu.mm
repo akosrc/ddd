@@ -11,8 +11,8 @@
 #include <vector>
 #include <pthread.h>
 
-#import "imgui.h"
-#import "backends/imgui_impl_opengl3.h"
+#import "../imgui.h"
+#import "../backends/imgui_impl_opengl3.h"
 #import "Verdana.h"
 
 int screenWidth = 2400;
