@@ -1,13 +1,10 @@
 #import <UIKit/UIKit.h>
 #include "utils/module_tools.h"
 
-@class mi;
-
-@interface OverlayView : UIView {
+@interface FloatView : UIView {
     ModuleControl *pModuleControl;
-    mi *menuWindow;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame moduleControl:(ModuleControl *)moduleControl menuWindow:(mi *)menuWindow;
+- (instancetype)initWithFrame:(CGRect)frame moduleControl:(ModuleControl *)moduleControl;
 
 @end
