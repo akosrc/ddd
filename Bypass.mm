@@ -128,7 +128,7 @@ static void InitializeAntiBan() {
         Class coronaClass = NSClassFromString(@"CoronaLabSubsystem");
         if (coronaClass) {
             swizzleMethod(coronaClass, NSSelectorFromString(@"ReportData"), NSSelectorFromString(@"hooked_ReportData"));
-            swizzleMethod(coronaClass, NSSelectorFromString(`SendToServer`), NSSelectorFromString(@"hooked_SendToServer"));
+            swizzleMethod(coronaClass, NSSelectorFromString(@"SendToServer"), NSSelectorFromString(@"hooked_SendToServer"));
             NSLog(@"[DARK IOS BYPASS] CoronaLab devre dışı.");
         }
 
