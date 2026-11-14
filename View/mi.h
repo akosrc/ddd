@@ -5,6 +5,6 @@
     ModuleControl *pModuleControl;
 }
 
-- (instancetype)initWithFrame:(ModuleControl *)moduleControl;
+- (instancetype)initWithModuleControl:(ModuleControl *)moduleControl;
 
 @end
