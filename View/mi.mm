@@ -2,14 +2,12 @@
 
 @implementation mi
 
-- (instancetype)initWithFrame:(ModuleControl *)moduleControl {
+- (instancetype)initWithModuleControl:(ModuleControl *)moduleControl {
     self = [super initWithFrame:[UIScreen mainScreen].bounds];
     if (self) {
         pModuleControl = moduleControl;
         self.backgroundColor = [UIColor clearColor];
         self.userInteractionEnabled = YES;
-        
-        // Burada menyunun pəncərəsi, düymələri və digər UI elementləri yaradıla bilər
     }
     return self;
 }
