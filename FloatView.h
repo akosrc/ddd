@@ -5,6 +5,8 @@
     ModuleControl *pModuleControl;
 }
 
+@property (nonatomic, assign) ModuleControl *moduleControl;
+
 - (instancetype)initWithFrame:(CGRect)frame moduleControl:(ModuleControl *)moduleControl;
 
 @end
