@@ -1,6 +1,9 @@
 #ifndef dobby_h
 #define dobby_h
 
+#include <stdbool.h>
+#include <stdint.h>
+
 // obfuscated interface
 #if 0
 #define DobbyBuildVersion c343f74888dffad84d9ad08d9c433456
@@ -11,9 +14,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stdint.h>
 
 void log_set_level(int level);
 void log_switch_to_syslog();
