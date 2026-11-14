@@ -1,5 +1,5 @@
 // ================================================================================
-// Full Neverlose UI Preview (Only Visuals / No Game Hooks)
+// Full Neverlose UI + Key System (Visual Preview Only)
 // ================================================================================
 
 #import <Foundation/Foundation.h>
@@ -11,9 +11,9 @@
 #include <vector>
 #include <pthread.h>
 
-#include "ImGui/imgui.h"
-#include "ImGui/backends/imgui_impl_opengl3.h"
-#include "ImGui/Verdana.h"
+#import "imgui.h"
+#import "backends/imgui_impl_opengl3.h"
+#import "Verdana.h"
 
 int screenWidth = 2400;
 int screenHeight = 1080;
@@ -26,7 +26,7 @@ bool show_key_system = true;
 bool show_menu = false;
 char keyInputBuffer[128] = "";
 
-// Menyu Xüsusiyyətləri (Yalnız vizual olaraq dəyişir, heç nə etmir)
+// Menyu Xüsusiyyətləri (Vizual)
 static bool esp = false;
 static bool esp_box = true;
 static bool esp_health = true;
@@ -54,7 +54,7 @@ void SetupNeverloseStyle(float scale) {
     colors[ImGuiCol_Button]        = ImVec4(0.080f, 0.085f, 0.105f, 1.0f);
 }
 
-// Key System
+// Key System Pəncərəsi
 void RenderKeySystem(float dispW, float dispH, float scale) {
     if (!show_key_system) return;
 
@@ -64,9 +64,9 @@ void RenderKeySystem(float dispW, float dispH, float scale) {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::Begin("##KeySystem", NULL, flags);
 
-    ImGui::TextColored(ImVec4(0.92f, 0.33f, 0.60f, 1.0f), "M7MD - PREVIEW AUTH");
+    ImGui::TextColored(ImVec4(0.92f, 0.33f, 0.60f, 1.0f), "M7MD - AUTHENTICATION");
     ImGui::Spacing();
-    ImGui::Text("Enter any key to test UI:");
+    ImGui::Text("Enter any key to enter menu:");
 
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
     ImGui::InputText("##keyBox", keyInputBuffer, sizeof(keyInputBuffer));
@@ -81,7 +81,7 @@ void RenderKeySystem(float dispW, float dispH, float scale) {
     ImGui::End();
 }
 
-// Əsas Neverlose Menyu (Tablar ilə)
+// Neverlose Menyu
 void RenderNeverloseMenu(float dispW, float dispH, float scale) {
     if (!show_menu || !show_window) return;
 
@@ -108,7 +108,6 @@ void RenderNeverloseMenu(float dispW, float dispH, float scale) {
     static int currentTab = 0;
 
     if (currentTab == 0) {
-        // Visuals Tab
         ImGui::SetCursorPos(ImVec2(padX, startY));
         ImGui::BeginChild("##Block_ESP", ImVec2(colW, totalH), true, ImGuiWindowFlags_NoScrollbar);
         {
@@ -122,7 +121,6 @@ void RenderNeverloseMenu(float dispW, float dispH, float scale) {
         ImGui::EndChild();
     }
     else if (currentTab == 2) {
-        // Legit Tab
         ImGui::SetCursorPos(ImVec2(padX, startY));
         ImGui::BeginChild("##Block_Legit", ImVec2(colW, totalH), true, ImGuiWindowFlags_NoScrollbar);
         {
@@ -134,7 +132,6 @@ void RenderNeverloseMenu(float dispW, float dispH, float scale) {
         ImGui::EndChild();
     }
 
-    // Aşağıdakı Navigasiya Tabları
     const char* tabsLabels[] = { "Visuals", "Rage", "Legit", "Skins", "Misc", "Exploits", "</> Lua" };
     const int tabCount = 7;
     float navW = sz.x - 24.0f * scale;
@@ -207,5 +204,5 @@ void RenderImGuiFrame() {
 }
 
 __attribute__((constructor)) void initialize() {
-    // Boş konstruktor - oyuna təsir edən heç bir hook yoxdur, sadəcə interfeysdir.
+    // Təmiz və təhlükəsiz konstruktor
 }
