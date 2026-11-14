@@ -2,7 +2,6 @@
 #import "FloatView.h"
 #import "OverlayView.h"
 #include "dolphins.h"
-#import "mi.h"
 #import <mach-o/dyld.h>
 #include <stdio.h>
 #include <vector>
@@ -23,8 +22,8 @@ ModuleControl moduleControl;
 // UI giriş funksiyası
 static void didFinishLaunching(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef info) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        // Menyu - metod düzgün şəkildə çağrıldı
-        mi* menuWindow = [[mi alloc] initWithModuleControl:&moduleControl];
+        // Menyu
+        mi* menuWindow = [[mi alloc] initWithFrame:&moduleControl];
         
         // Örtük qatı (Overlay)
         OverlayView* overlayView = [[OverlayView alloc] initWithFrame:[UIScreen mainScreen].bounds moduleControl:&moduleControl menuWindow:menuWindow];
@@ -38,9 +37,5 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer, C
 
 // Kitabxana giriş funksiyası
 __attribute__((constructor)) static void initialize() {
-    // Görünüş yüklənməsi
     CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(), NULL, &didFinishLaunching, (CFStringRef)UIApplicationDidFinishLaunchingNotification, NULL, CFNotificationSuspensionBehaviorDrop);
-    
-    // Hook yüklənməsi
-    //loadHook();
 }
