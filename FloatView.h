@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #include "utils/module_tools.h"
-#import "mi.h"
+
+@class mi;
 
 @interface OverlayView : UIView {
     ModuleControl *pModuleControl;
