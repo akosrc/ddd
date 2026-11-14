@@ -12,8 +12,35 @@ $visitors_file = "visitors.json";
 // Dosya kontrolleri
 if (!file_exists($json_file) && file_exists($backup_file)) { copy($backup_file, $json_file); }
 if (!file_exists($json_file)) { file_put_contents($json_file, json_encode([])); }
-if (!file_exists($config_file)) { file_put_contents($config_file, json_encode(["global_stop" => false])); }
+if (!file_exists($config_file)) { 
+    file_put_contents($config_file, json_encode([
+        "global_stop" => false,
+        "statuses" => [
+            "global" => true,
+            "korea" => true,
+            "taiwan" => false,
+            "vng" => true,
+            "esp" => true,
+            "aimbot" => true,
+            "silent" => false
+        ]
+    ], JSON_PRETTY_PRINT)); 
+}
 if (!file_exists($visitors_file)) { file_put_contents($visitors_file, json_encode([])); }
+
+$config = json_decode(file_get_contents($config_file), true);
+if (!isset($config['statuses'])) {
+    $config['statuses'] = [
+        "global" => true,
+        "korea" => true,
+        "taiwan" => false,
+        "vng" => true,
+        "esp" => true,
+        "aimbot" => true,
+        "silent" => false
+    ];
+    file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
+}
 
 // --- GİRİŞ KONTROLÜ (EN ÜSTTE) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
@@ -48,6 +75,8 @@ if (isset($_POST['action']) && $_POST['action'] == 'log_visitor') {
 
 // --- VİTRİN  (LANDING PAGE) MANTIĞI ---
 if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !== 'login')) {
+    $config_landing = json_decode(file_get_contents($config_file), true);
+    $statuses = $config_landing['statuses'] ?? ["global" => true, "korea" => true, "taiwan" => false, "vng" => true, "esp" => true, "aimbot" => true, "silent" => false];
     ?>
     <!DOCTYPE html>
     <html lang="tr">
@@ -65,19 +94,26 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
 
             .navbar { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 100; max-width: 1200px; margin: 0 auto; }
             .logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 8px; }
-            .logo-icon { display: none; }
             .nav-links { display: flex; gap: 20px; align-items: center; }
             .nav-btn { color: #a78bfa; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; white-space: nowrap;}
             .nav-btn:hover { color: #fff; background: rgba(139, 92, 246, 0.1); }
             .login-btn { background: transparent; color: #fff; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; border: 1px solid #4c1d95; white-space: nowrap;}
             .login-btn:hover { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; }
 
-            .hero { text-align: center; padding: 80px 20px 60px 20px; position: relative; max-width: 900px; margin: 0 auto; }
+            .hero { text-align: center; padding: 80px 20px 40px 20px; position: relative; max-width: 900px; margin: 0 auto; }
             .hero h1 { font-size: 56px; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #fff; letter-spacing: -1px; }
             .hero h1 span { color: #c084fc; }
             .hero p { font-size: 16px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
-            .pricing-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 10; }
+            /* STATUS WIDGET ON LANDING */
+            .status-widget { max-width: 900px; margin: 20px auto 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; position: relative; z-index: 10; }
+            .status-card { background: rgba(21, 15, 30, 0.8); border: 1px solid #2e1a47; border-radius: 12px; padding: 15px; text-align: center; backdrop-filter: blur(5px); }
+            .status-card-title { font-size: 13px; color: #94a3b8; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+            .status-badge-landing { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+            .status-badge-landing.safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+            .status-badge-landing.unsafe { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+            .pricing-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; padding: 20px 20px; position: relative; z-index: 10; }
             .price-card { background: linear-gradient(180deg, rgba(30, 20, 45, 0.8) 0%, rgba(15, 10, 25, 0.9) 100%); border: 1px solid #3b0764; border-radius: 20px; padding: 30px; position: relative; transition: 0.3s; display: flex; flex-direction: column; }
             .price-card:hover { transform: translateY(-5px); border-color: #8b5cf6; box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.3); }
             .price-card.popular { border-color: #8b5cf6; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
@@ -153,6 +189,38 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
         <div class="hero">
             <h1>Sınırları Aş, En İyi<br><span>Araçlara Anında Erişim.</span></h1>
             <p>Premium araçlar ve yazılımlar için en güvenilir adres. İhtiyacına uygun paketi seç, anında teslim al.</p>
+        </div>
+
+        <!-- LANDING PAGE STATUS WIDGET -->
+        <div class="status-widget">
+            <div class="status-card">
+                <div class="status-card-title">Global (GL)</div>
+                <div class="status-badge-landing <?= $statuses['global'] ? 'safe' : 'unsafe' ?>"><?= $statuses['global'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">Korea (KR)</div>
+                <div class="status-badge-landing <?= $statuses['korea'] ? 'safe' : 'unsafe' ?>"><?= $statuses['korea'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">Taiwan (TW)</div>
+                <div class="status-badge-landing <?= $statuses['taiwan'] ? 'safe' : 'unsafe' ?>"><?= $statuses['taiwan'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">VNG</div>
+                <div class="status-badge-landing <?= $statuses['vng'] ? 'safe' : 'unsafe' ?>"><?= $statuses['vng'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">ESP</div>
+                <div class="status-badge-landing <?= $statuses['esp'] ? 'safe' : 'unsafe' ?>"><?= $statuses['esp'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">Aimbot</div>
+                <div class="status-badge-landing <?= $statuses['aimbot'] ? 'safe' : 'unsafe' ?>"><?= $statuses['aimbot'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
+            <div class="status-card">
+                <div class="status-card-title">Silent Aim</div>
+                <div class="status-badge-landing <?= $statuses['silent'] ? 'safe' : 'unsafe' ?>"><?= $statuses['silent'] ? 'SAFE' : 'UNSAFE' ?></div>
+            </div>
         </div>
 
         <div class="pricing-container">
@@ -243,7 +311,7 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
     exit; 
 }
 
-// --- YENİ LOGIN EKRANI (Sadece Siyah/Beyaz ve Sütunlu) ---
+// --- YENİ LOGIN EKRANI ---
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     ?>
     <!DOCTYPE html>
@@ -259,7 +327,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             
             .login-container { display: flex; width: 100%; max-width: 1000px; height: 600px; background: #0a0a0a; border: 4px solid #333; position: relative; overflow: hidden;}
             
-            /* Sol Taraf (Form) */
             .login-left { flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
             .logo-svg { width: 50px; height: 50px; margin-bottom: 40px; }
             .input-group { margin-bottom: 20px; }
@@ -274,7 +341,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
             
             .error { color: #ff4444; font-size: 13px; margin-bottom: 15px; text-align: center; background: rgba(255, 68, 68, 0.1); padding: 10px; border-radius: 4px;}
             
-            /* YENİ EKLENEN GERİ DÖN BUTONU */
             .back-btn { 
                 display: inline-block; 
                 margin-top: 20px; 
@@ -295,23 +361,19 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                 border-color: #888; 
             }
 
-            /* Sağ Taraf (Tamamen Siyah / İsteğe Bağlı Görsel) */
             .login-right { flex: 1; position: relative; background: #000; overflow: hidden; border-left: 4px solid #333; display: flex; justify-content: center; align-items: center;}
             .login-right-text { color: #333; font-size: 40px; font-weight: 800; letter-spacing: 5px; text-transform: uppercase; transform: rotate(-90deg); white-space: nowrap;}
 
-            /* Mobil Uyumluluk */
             @media (max-width: 768px) {
                 .login-container { flex-direction: column; height: 100vh; border: none; }
                 .login-left { padding: 40px 30px; width: 100%; }
-                .login-right { display: none; } /* Mobilde sağ tarafı gizle */
+                .login-right { display: none; }
             }
         </style>
     </head>
     <body>
         <div class="login-container">
-            <!-- Sol Form Kısmı -->
             <div class="login-left">
-                <!-- Üstteki Logo (Sembol) -->
                 <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
                 
                 <?php if(isset($login_error)) echo "<div class='error'>$login_error</div>"; ?>
@@ -334,11 +396,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                     <button type="submit" name="login" class="btn-submit">Login</button>
                 </form>
                 
-                <!-- Geri Dön Butonu -->
                 <a href="admin.php" class="back-btn">&larr; Ana Sayfaya Dön</a>
             </div>
             
-            <!-- Sağ Görsel Kısmı (Tamamen Siyah) -->
             <div class="login-right">
                 <div class="login-right-text">DARK IOS</div>
             </div>
@@ -349,7 +409,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 
-// --- GİRİŞ YAPILDIYSA GERİ KALAN TÜM ADMIN PANEL KODLARI ---
+// --- GİRİŞ YAPILDIYSA ADMIN PANEL KODLARI ---
 $keys_data = json_decode(file_get_contents($json_file), true);
 if (!is_array($keys_data)) $keys_data = [];
 $config = json_decode(file_get_contents($config_file), true);
@@ -357,11 +417,28 @@ $visitors_data = json_decode(file_get_contents($visitors_file), true);
 if (!is_array($visitors_data)) $visitors_data = [];
 
 $global_stop = isset($config['global_stop']) ? $config['global_stop'] : false;
+$statuses = $config['statuses'] ?? ["global" => true, "korea" => true, "taiwan" => false, "vng" => true, "esp" => true, "aimbot" => true, "silent" => false];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Feature / Region Status Güncelleme
+    if (isset($_POST['update_statuses'])) {
+        $statuses['global'] = isset($_POST['status_global']) ? true : false;
+        $statuses['korea'] = isset($_POST['status_korea']) ? true : false;
+        $statuses['taiwan'] = isset($_POST['status_taiwan']) ? true : false;
+        $statuses['vng'] = isset($_POST['status_vng']) ? true : false;
+        $statuses['esp'] = isset($_POST['status_esp']) ? true : false;
+        $statuses['aimbot'] = isset($_POST['status_aimbot']) ? true : false;
+        $statuses['silent'] = isset($_POST['status_silent']) ? true : false;
+
+        $config['statuses'] = $statuses;
+        file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
+        header("Location: admin.php"); exit;
+    }
+
     if (isset($_POST['toggle_global_stop'])) {
         $global_stop = !$global_stop;
-        file_put_contents($config_file, json_encode(["global_stop" => $global_stop]));
+        $config['global_stop'] = $global_stop;
+        file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
         if ($global_stop) {
             foreach ($keys_data as $k => $v) { if ($v['status'] !== 'banned') { $keys_data[$k]['status'] = 'global_banned'; } }
         } else {
@@ -579,9 +656,14 @@ function key_status_badge($v) {
         .social-icon svg { width: 100%; height: 100%; }
         .social-title { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .social-link-text { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+        
+        /* THEMES & ANIMATIONS */
         @keyframes rgbHue { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
         .rgb-theme *:not(.terminal-text):not(.logo-area):not(.logo-area *) { animation: rgbHue 2s linear infinite !important; text-shadow: 0 0 8px currentColor !important; box-shadow: 0 0 15px currentColor !important; border-color: currentColor !important; }
         .rgb-theme body, .rgb-theme .card, .rgb-theme .sidebar, .rgb-theme .topbar { background: #000 !important; color: #fff !important; }
+        
+        .bw-theme body, .bw-theme .card, .bw-theme .sidebar, .bw-theme .topbar, .bw-theme .form-control { background: #000 !important; color: #fff !important; border-color: #fff !important; filter: grayscale(100%); }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -615,7 +697,6 @@ function key_status_badge($v) {
                 Device Info
             </a>
             
-            <!-- WEB INFO SEKMESİ -->
             <div class="nav-title" style="margin-top:20px;">Tracking</div>
             <a href="#" class="nav-item" onclick="switchTab('webInfoTab', this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
@@ -627,6 +708,13 @@ function key_status_badge($v) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 BULK KEY
             </a>
+            
+            <!-- FEATURE STATUS (Settings-in bir üstü) -->
+            <a href="#" class="nav-item" onclick="switchTab('featureStatusTab', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Feature Status
+            </a>
+
             <a href="#" class="nav-item" onclick="switchTab('settingsTab', this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 Settings
@@ -795,7 +883,7 @@ function key_status_badge($v) {
             </div>
         </div>
 
-        <!-- WEB INFO SEKMESİ İÇERİĞİ -->
+        <!-- WEB INFO SEKMESİ -->
         <div id="webInfoTab" class="content-area">
             <div class="card">
                 <div class="card-header">
@@ -862,6 +950,56 @@ function key_status_badge($v) {
             </div>
         </div>
 
+        <!-- FEATURE STATUS MÜKEMMEL YÖNETİM SEKMESİ (SETTINGS'İN BİR ÜSTÜ) -->
+        <div id="featureStatusTab" class="content-area">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Feature & Region Safety Status Manager</div>
+                </div>
+                <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Buradan hangi oyun versiyonunun ve özelliklerin Safe veya Unsafe olduğunu ayarlayabilirsiniz. Landing sayfasında anlık olarak güncellenecektir.</p>
+                
+                <form method="POST">
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">Global (GL) Status</span>
+                            <input type="checkbox" name="status_global" <?= $statuses['global'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+                        
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">Korea (KR) Status</span>
+                            <input type="checkbox" name="status_korea" <?= $statuses['korea'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">Taiwan (TW) Status</span>
+                            <input type="checkbox" name="status_taiwan" <?= $statuses['taiwan'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">VNG Status</span>
+                            <input type="checkbox" name="status_vng" <?= $statuses['vng'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">ESP Feature Status</span>
+                            <input type="checkbox" name="status_esp" <?= $statuses['esp'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">Aimbot Feature Status</span>
+                            <input type="checkbox" name="status_aimbot" <?= $statuses['aimbot'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+
+                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-weight: 700;">Silent Aim Feature Status</span>
+                            <input type="checkbox" name="status_silent" <?= $statuses['silent'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
+                        </label>
+                    </div>
+                    <button type="submit" name="update_statuses" class="btn btn-primary">Save Statuses</button>
+                </form>
+            </div>
+        </div>
+
         <div id="bulkTab" class="content-area">
             <div class="card">
                 <div class="card-header"><div class="card-title">Bulk Key Generator</div></div>
@@ -894,7 +1032,16 @@ function key_status_badge($v) {
                 <div class="card-header"><div class="card-title">Theme Selection</div></div>
                 <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Select a theme to change the entire dashboard style.</p>
                 <select id="themeSelect" class="form-control" onchange="setTheme(this.value)" style="padding: 12px; font-size: 16px;">
-                    <option value="default">Default (Light)</option><option value="dark">Dark Mode</option><option value="cyberpunk">Cyberpunk (Purple/Cyan)</option><option value="neon">Neon (Green/Pink)</option><option value="sunset">Sunset (Orange/Red)</option><option value="ocean">Ocean (Blue/Teal)</option><option value="royal">Royal (Gold/Purple)</option><option value="minimal">Minimal (Grey/Black)</option><option value="rgb1443">RGB 1443 (Animated)</option>
+                    <option value="default">Default (Light)</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="cyberpunk">Cyberpunk (Purple/Cyan)</option>
+                    <option value="neon">Neon (Green/Pink)</option>
+                    <option value="sunset">Sunset (Orange/Red)</option>
+                    <option value="ocean">Ocean (Blue/Teal)</option>
+                    <option value="royal">Royal (Gold/Purple)</option>
+                    <option value="minimal">Minimal (Grey/Black)</option>
+                    <option value="rgb1443">RGB 1443 (Animated)</option>
+                    <option value="bw">Black & White (Monochrome)</option>
                 </select>
             </div>
             <div class="card">
@@ -941,6 +1088,7 @@ function key_status_badge($v) {
             if(tabId === 'bannedTab') title = "Banned Keys"; 
             if(tabId === 'infoTab') title = "Device Info"; 
             if(tabId === 'bulkTab') title = "Bulk Key"; 
+            if(tabId === 'featureStatusTab') title = "Feature Status";
             if(tabId === 'settingsTab') title = "Settings";
             if(tabId === 'webInfoTab') title = "WEB INFO";
             document.getElementById('currentPageTitle').innerText = title;
@@ -1018,7 +1166,8 @@ function key_status_badge($v) {
         }
         function setTheme(theme) { localStorage.setItem('themeMode', theme); applyTheme(theme); }
         function applyTheme(theme) {
-            let root = document.documentElement; let body = document.body; body.classList.remove('rgb-theme');
+            let root = document.documentElement; let body = document.body; 
+            body.classList.remove('rgb-theme', 'bw-theme');
             let colors = { '--bg': '#f8fafc', '--sidebar': '#ffffff', '--card': '#ffffff', '--border': '#e2e8f0', '--text': '#0f172a', '--text-muted': '#64748b', '--primary': '#6366f1', '--primary-hover': '#4f46e5' };
             if (theme === 'dark') { colors = { '--bg': '#0f172a', '--sidebar': '#1e293b', '--card': '#1e293b', '--border': '#334155', '--text': '#f8fafc', '--text-muted': '#94a3b8', '--primary': '#6366f1', '--primary-hover': '#4f46e5' }; }
             else if (theme === 'cyberpunk') { colors = { '--bg': '#09090b', '--sidebar': '#18181b', '--card': '#18181b', '--border': '#3b0764', '--text': '#fdf4ff', '--text-muted': '#a21caf', '--primary': '#d946ef', '--primary-hover': '#c026d3' }; }
@@ -1028,6 +1177,7 @@ function key_status_badge($v) {
             else if (theme === 'royal') { colors = { '--bg': '#2e1065', '--sidebar': '#4c1d95', '--card': '#4c1d95', '--border': '#6d28d9', '--text': '#fef08a', '--text-muted': '#ca8a04', '--primary': '#eab308', '--primary-hover': '#ca8a04' }; }
             else if (theme === 'minimal') { colors = { '--bg': '#f5f5f5', '--sidebar': '#e5e5e5', '--card': '#ffffff', '--border': '#d4d4d4', '--text': '#171717', '--text-muted': '#525252', '--primary': '#171717', '--primary-hover': '#404040' }; }
             else if (theme === 'rgb1443') { body.classList.add('rgb-theme'); colors = { '--bg': '#000000', '--sidebar': '#000000', '--card': '#111111', '--border': '#ffffff', '--text': '#ffffff', '--text-muted': '#aaaaaa', '--primary': '#ffffff', '--primary-hover': '#cccccc' }; }
+            else if (theme === 'bw') { body.classList.add('bw-theme'); colors = { '--bg': '#000000', '--sidebar': '#000000', '--card': '#000000', '--border': '#ffffff', '--text': '#ffffff', '--text-muted': '#aaaaaa', '--primary': '#ffffff', '--primary-hover': '#cccccc' }; }
             for (let key in colors) { root.style.setProperty(key, colors[key]); }
         }
         function uploadBackground(input) {
