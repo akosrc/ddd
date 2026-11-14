@@ -1,15 +1,10 @@
 #import <UIKit/UIKit.h>
-#import "../utils/module_tools.h"
+#include "../utils/module_tools.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface mi : UIView {
+    ModuleControl *pModuleControl;
+}
 
-@interface FloatView : UIView
-
-@property (nonatomic, assign) ModuleControl *moduleControl;
-
-+ (instancetype)sharedInstance:(ModuleControl*)control;
-- (instancetype)initWithFrame:(CGRect)frame :(ModuleControl*)control;
+- (instancetype)initWithModuleControl:(ModuleControl *)moduleControl;
 
 @end
-
-NS_ASSUME_NONNULL_END
