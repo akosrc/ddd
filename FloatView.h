@@ -1,5 +1,5 @@
 #import <UIKit/UIKit.h>
-#include "../utils/module_tools.h"
+#include "utils/module_tools.h"
 
 @interface FloatView : UIView {
     ModuleControl *pModuleControl;
