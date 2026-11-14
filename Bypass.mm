@@ -3,11 +3,9 @@
 #import <objc/runtime.h>
 
 // ============================================
-// iOS ANTI-BAN / BYPASS SİSTEMİ (v4.0 - Ultimate)
-// Android Lua/C++ Bypass Mantığının iOS Karşılığı
+// iOS ANTI-BAN / BYPASS SİSTEMİ (v4.1 - Optimized & Fixed)
 // ============================================
 
-// --- 1. YARDIMCI FONKSİYONLAR ---
 static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector) {
     Method originalMethod = class_getInstanceMethod(cls, originalSelector);
     Method swizzledMethod = class_getInstanceMethod(cls, swizzledSelector);
@@ -16,14 +14,12 @@ static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector)
     }
 }
 
-// --- 2. AĞ (NETWORK) SEVİYESİNDE RAPOR ENGELLEME ---
-// (Lua dosyasındaki "BLACKLIST_HOSTS" mantığı)
+// --- 1. AĞ (NETWORK) SEVİYESİNDE RAPOR ENGELLEME ---
 @interface AntiBanURLProtocol : NSURLProtocol @end
 @implementation AntiBanURLProtocol
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     NSString *urlString = request.URL.absoluteString.lowercaseString;
-    // Oyunun rapor gönderdiği tüm URL kalıplarını engelle
     NSArray *blockedKeywords = @[
         @"report", @"anticheat", @"exception", @"verify", @"log", @"telemetry",
         @"security", @"detect", @"cheat", @"ban", @"tss", @"crashsight",
@@ -33,7 +29,7 @@ static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector)
     for (NSString *keyword in blockedKeywords) {
         if ([urlString containsString:keyword]) {
             NSLog(@"[DARK IOS BYPASS] Engellenen istek: %@", urlString);
-            return YES; // İsteği yakala (engelle)
+            return YES;
         }
     }
     return NO;
@@ -41,24 +37,47 @@ static void swizzleMethod(Class cls, SEL originalSelector, SEL swizzledSelector)
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request { return request; }
 - (void)startLoading {
-    // İsteği iptal et (Sunucuya gitmesini engelle)
     [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"AntiBan" code:-1 userInfo:nil]];
 }
 - (void)stopLoading { }
 @end
 
-// --- 3. OBJ-C SINIF METOTLARINI KANCAYA ALMA (Hook) ---
+// --- 2. HOOK EDİLEN METOTLAR (Geri dönüş tipleri çöküşlərin qarşısını almaq üçün düzəldildi) ---
+@implementation NSObject (AntiBanHooks)
+
+// Void metodlar
+- (void)hooked_ControlMHActive { }
+- (void)hooked_ReportItemID { }
+- (void)hooked_ClientCoronaLab { }
+- (void)hooked_ReportViolation { }
+- (void)hooked_ReportData { }
+- (void)hooked_SendToServer { }
+- (void)hooked_FlushMrpcsFlow { }
+- (void)hooked_ReportMrpcsFlow { }
+- (void)hooked_ReportException { }
+- (void)hooked_SendCrash { }
+- (void)hooked_SendReportInfo { }
+- (void)hooked_ScanMemory { }
+- (void)hooked_OnRecvData { }
+- (void)hooked_SendReport { }
+- (void)hooked_ForwardFeature { }
+
+// BOOL / Non-void metodlar (Oyunun çökmməsi üçün mütləq NO / false qaytarmalıdır)
+- (BOOL)hooked_ValidateSecurityData { return NO; }
+- (BOOL)hooked_CheckCheat { return NO; }
+
+@end
+
+// --- 3. BAŞLANĞIC VƏ HOOK QEYDİ ---
 __attribute__((constructor))
 static void InitializeAntiBan() {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
-        // NSURLProtocol'i kaydet
+        // NSURLProtocol qeydiyyatı
         [NSURLProtocol registerClass:[AntiBanURLProtocol class]];
-        NSLog(@"[DARK IOS BYPASS] Ağ filtresi aktif edildi.");
+        NSLog(@"[DARK IOS BYPASS] Ağ filtresi aktiv edildi.");
 
-        // --- Oyun İçi Tespit Fonksiyonlarını Kapatma ---
-        
-        // 1. HiggsBoson (Anti-Cheat)
+        // 1. HiggsBoson
         Class higgsClass = NSClassFromString(@"HiggsBosonComponent");
         if (higgsClass) {
             swizzleMethod(higgsClass, NSSelectorFromString(@"ControlMHActive"), NSSelectorFromString(@"hooked_ControlMHActive"));
@@ -109,7 +128,7 @@ static void InitializeAntiBan() {
         Class coronaClass = NSClassFromString(@"CoronaLabSubsystem");
         if (coronaClass) {
             swizzleMethod(coronaClass, NSSelectorFromString(@"ReportData"), NSSelectorFromString(@"hooked_ReportData"));
-            swizzleMethod(coronaClass, NSSelectorFromString(@"SendToServer"), NSSelectorFromString(@"hooked_SendToServer"));
+            swizzleMethod(coronaClass, NSSelectorFromString(`SendToServer`), NSSelectorFromString(@"hooked_SendToServer"));
             NSLog(@"[DARK IOS BYPASS] CoronaLab devre dışı.");
         }
 
@@ -121,24 +140,3 @@ static void InitializeAntiBan() {
         }
     });
 }
-
-// --- 4. HOOK EDİLEN FONKSİYONLARIN BOŞ KARŞILIKLARI (NOP) ---
-@implementation NSObject (AntiBanHooks)
-- (void)hooked_ControlMHActive { }
-- (void)hooked_ReportItemID { }
-- (void)hooked_ClientCoronaLab { }
-- (void)hooked_ReportViolation { }
-- (void)hooked_ValidateSecurityData { }
-- (void)hooked_ReportData { }
-- (void)hooked_SendToServer { }
-- (void)hooked_FlushMrpcsFlow { }
-- (void)hooked_ReportMrpcsFlow { }
-- (void)hooked_CheckCheat { }
-- (void)hooked_ReportException { }
-- (void)hooked_SendCrash { }
-- (void)hooked_SendReportInfo { }
-- (void)hooked_ScanMemory { }
-- (void)hooked_OnRecvData { }
-- (void)hooked_SendReport { }
-- (void)hooked_ForwardFeature { }
-@end
