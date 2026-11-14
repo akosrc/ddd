@@ -1,11 +1,5 @@
 #import <UIKit/UIKit.h>
-
-// C++ strukturunu Objective-C üçün əvvəlcədən tanıdırıq
-#ifdef __cplusplus
-struct ModuleControl;
-#else
-typedef struct ModuleControl ModuleControl;
-#endif
+#import "../utils/module_tools.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
