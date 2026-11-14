@@ -16,13 +16,13 @@ if (!file_exists($config_file)) {
     file_put_contents($config_file, json_encode([
         "global_stop" => false,
         "statuses" => [
-            "global" => true,
-            "korea" => true,
-            "taiwan" => false,
-            "vng" => true,
-            "esp" => true,
-            "aimbot" => true,
-            "silent" => false
+            "global" => "safe",
+            "korea" => "safe",
+            "taiwan" => "unsafe",
+            "vng" => "safe",
+            "esp" => "safe",
+            "aimbot" => "safe",
+            "silent" => "warning"
         ]
     ], JSON_PRETTY_PRINT)); 
 }
@@ -31,13 +31,13 @@ if (!file_exists($visitors_file)) { file_put_contents($visitors_file, json_encod
 $config = json_decode(file_get_contents($config_file), true);
 if (!isset($config['statuses'])) {
     $config['statuses'] = [
-        "global" => true,
-        "korea" => true,
-        "taiwan" => false,
-        "vng" => true,
-        "esp" => true,
-        "aimbot" => true,
-        "silent" => false
+        "global" => "safe",
+        "korea" => "safe",
+        "taiwan" => "unsafe",
+        "vng" => "safe",
+        "esp" => "safe",
+        "aimbot" => "safe",
+        "silent" => "warning"
     ];
     file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
 }
@@ -73,13 +73,23 @@ if (isset($_POST['action']) && $_POST['action'] == 'log_visitor') {
     echo json_encode(["status" => "success"]); exit;
 }
 
-// --- VİTRİN  (LANDING PAGE) MANTIĞI ---
+// --- VİTRİN (LANDING PAGE) MANTIĞI ---
 if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !== 'login')) {
     $config_landing = json_decode(file_get_contents($config_file), true);
-    $statuses = $config_landing['statuses'] ?? ["global" => true, "korea" => true, "taiwan" => false, "vng" => true, "esp" => true, "aimbot" => true, "silent" => false];
+    $statuses = $config_landing['statuses'] ?? ["global" => "safe", "korea" => "safe", "taiwan" => "unsafe", "vng" => "safe", "esp" => "safe", "aimbot" => "safe", "silent" => "warning"];
+    
+    function getLandingBadge($state) {
+        if ($state === 'safe') {
+            return '<span style="display:inline-block;width:10px;height:10px;background-color:#22c55e;border-radius:50%;margin-right:6px;box-shadow:0 0 8px #22c55e;"></span><span style="color:#34d399;font-size:12px;font-weight:700;">Full Safe</span>';
+        } elseif ($state === 'warning') {
+            return '<span style="display:inline-block;width:10px;height:10px;background-color:#eab308;border-radius:50%;margin-right:6px;box-shadow:0 0 8px #eab308;"></span><span style="color:#facc15;font-size:12px;font-weight:700;">Play on secondary account</span>';
+        } else {
+            return '<span style="display:inline-block;width:10px;height:10px;background-color:#ef4444;border-radius:50%;margin-right:6px;box-shadow:0 0 8px #ef4444;"></span><span style="color:#f87171;font-size:12px;font-weight:700;">Do not play / Unsafe</span>';
+        }
+    }
     ?>
     <!DOCTYPE html>
-    <html lang="tr">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>DARK IOS - Premium Tools</title>
@@ -100,18 +110,15 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
             .login-btn { background: transparent; color: #fff; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; border: 1px solid #4c1d95; white-space: nowrap;}
             .login-btn:hover { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; }
 
-            .hero { text-align: center; padding: 80px 20px 40px 20px; position: relative; max-width: 900px; margin: 0 auto; }
-            .hero h1 { font-size: 56px; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #fff; letter-spacing: -1px; }
+            .hero { text-align: center; padding: 60px 20px 30px 20px; position: relative; max-width: 900px; margin: 0 auto; }
+            .hero h1 { font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 20px; color: #fff; letter-spacing: -1px; }
             .hero h1 span { color: #c084fc; }
             .hero p { font-size: 16px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
-            /* STATUS WIDGET ON LANDING */
-            .status-widget { max-width: 900px; margin: 20px auto 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; position: relative; z-index: 10; }
-            .status-card { background: rgba(21, 15, 30, 0.8); border: 1px solid #2e1a47; border-radius: 12px; padding: 15px; text-align: center; backdrop-filter: blur(5px); }
-            .status-card-title { font-size: 13px; color: #94a3b8; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
-            .status-badge-landing { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; }
-            .status-badge-landing.safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-            .status-badge-landing.unsafe { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+            /* STATUS WIDGET ON LANDING (YENİLENMİŞ, YUVARLAK İNDİKATÖRLÜ) */
+            .status-widget { max-width: 1000px; margin: 20px auto 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 15px; position: relative; z-index: 10; }
+            .status-card { background: rgba(21, 15, 30, 0.85); border: 1px solid #2e1a47; border-radius: 12px; padding: 18px; text-align: center; backdrop-filter: blur(5px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+            .status-card-title { font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
             .pricing-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; padding: 20px 20px; position: relative; z-index: 10; }
             .price-card { background: linear-gradient(180deg, rgba(30, 20, 45, 0.8) 0%, rgba(15, 10, 25, 0.9) 100%); border: 1px solid #3b0764; border-radius: 20px; padding: 30px; position: relative; transition: 0.3s; display: flex; flex-direction: column; }
@@ -165,10 +172,6 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
                 .new-price { font-size: 32px; }
                 .pricing-container { padding: 20px; }
             }
-            @media (max-width: 480px) {
-                .nav-btn span { display: none; }
-                .logo { font-size: 18px; }
-            }
         </style>
     </head>
     <body>
@@ -191,35 +194,35 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
             <p>Premium araçlar ve yazılımlar için en güvenilir adres. İhtiyacına uygun paketi seç, anında teslim al.</p>
         </div>
 
-        <!-- LANDING PAGE STATUS WIDGET -->
+        <!-- LANDING PAGE STATUS WIDGET (AVTO ANALİZ VE İNGİLİZCE / YUVARLAK İNDİKATÖRLÜ) -->
         <div class="status-widget">
             <div class="status-card">
                 <div class="status-card-title">Global (GL)</div>
-                <div class="status-badge-landing <?= $statuses['global'] ? 'safe' : 'unsafe' ?>"><?= $statuses['global'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['global']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">Korea (KR)</div>
-                <div class="status-badge-landing <?= $statuses['korea'] ? 'safe' : 'unsafe' ?>"><?= $statuses['korea'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['korea']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">Taiwan (TW)</div>
-                <div class="status-badge-landing <?= $statuses['taiwan'] ? 'safe' : 'unsafe' ?>"><?= $statuses['taiwan'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['taiwan']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">VNG</div>
-                <div class="status-badge-landing <?= $statuses['vng'] ? 'safe' : 'unsafe' ?>"><?= $statuses['vng'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['vng']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">ESP</div>
-                <div class="status-badge-landing <?= $statuses['esp'] ? 'safe' : 'unsafe' ?>"><?= $statuses['esp'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['esp']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">Aimbot</div>
-                <div class="status-badge-landing <?= $statuses['aimbot'] ? 'safe' : 'unsafe' ?>"><?= $statuses['aimbot'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['aimbot']); ?></div>
             </div>
             <div class="status-card">
                 <div class="status-card-title">Silent Aim</div>
-                <div class="status-badge-landing <?= $statuses['silent'] ? 'safe' : 'unsafe' ?>"><?= $statuses['silent'] ? 'SAFE' : 'UNSAFE' ?></div>
+                <div><?php echo getLandingBadge($statuses['silent']); ?></div>
             </div>
         </div>
 
@@ -271,7 +274,7 @@ if (!isset($_SESSION['logged_in']) && (!isset($_GET['page']) || $_GET['page'] !=
             </div>
         </div>
 
-        <div class="footer">&copy; 2024 DARK IOS. All rights reserved.</div>
+        <div class="footer">&copy; 2026 DARK IOS. All rights reserved.</div>
 
         <div id="infoModal" class="modal">
             <div class="modal-content">
@@ -417,18 +420,18 @@ $visitors_data = json_decode(file_get_contents($visitors_file), true);
 if (!is_array($visitors_data)) $visitors_data = [];
 
 $global_stop = isset($config['global_stop']) ? $config['global_stop'] : false;
-$statuses = $config['statuses'] ?? ["global" => true, "korea" => true, "taiwan" => false, "vng" => true, "esp" => true, "aimbot" => true, "silent" => false];
+$statuses = $config['statuses'] ?? ["global" => "safe", "korea" => "safe", "taiwan" => "unsafe", "vng" => "safe", "esp" => "safe", "aimbot" => "safe", "silent" => "warning"];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Feature / Region Status Güncelleme
+    // Feature / Region Status Güncelleme (Dropdown üzerinden seçimli)
     if (isset($_POST['update_statuses'])) {
-        $statuses['global'] = isset($_POST['status_global']) ? true : false;
-        $statuses['korea'] = isset($_POST['status_korea']) ? true : false;
-        $statuses['taiwan'] = isset($_POST['status_taiwan']) ? true : false;
-        $statuses['vng'] = isset($_POST['status_vng']) ? true : false;
-        $statuses['esp'] = isset($_POST['status_esp']) ? true : false;
-        $statuses['aimbot'] = isset($_POST['status_aimbot']) ? true : false;
-        $statuses['silent'] = isset($_POST['status_silent']) ? true : false;
+        $statuses['global'] = $_POST['status_global'] ?? 'safe';
+        $statuses['korea'] = $_POST['status_korea'] ?? 'safe';
+        $statuses['taiwan'] = $_POST['status_taiwan'] ?? 'unsafe';
+        $statuses['vng'] = $_POST['status_vng'] ?? 'safe';
+        $statuses['esp'] = $_POST['status_esp'] ?? 'safe';
+        $statuses['aimbot'] = $_POST['status_aimbot'] ?? 'safe';
+        $statuses['silent'] = $_POST['status_silent'] ?? 'warning';
 
         $config['statuses'] = $statuses;
         file_put_contents($config_file, json_encode($config, JSON_PRETTY_PRINT));
@@ -950,50 +953,78 @@ function key_status_badge($v) {
             </div>
         </div>
 
-        <!-- FEATURE STATUS MÜKEMMEL YÖNETİM SEKMESİ (SETTINGS'İN BİR ÜSTÜ) -->
+        <!-- FEATURE STATUS YÖNETİM SEKMESİ (SETTINGS'İN BİR ÜSTÜ) -->
         <div id="featureStatusTab" class="content-area">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Feature & Region Safety Status Manager</div>
                 </div>
-                <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Buradan hangi oyun versiyonunun ve özelliklerin Safe veya Unsafe olduğunu ayarlayabilirsiniz. Landing sayfasında anlık olarak güncellenecektir.</p>
+                <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px; font-weight:600;">Buradan oyun versiyonlarının ve özelliklerin durumunu (Full Safe, Play on secondary account, Unsafe) seçebilirsiniz. Landing sayfasında anlık olarak güncellenecektir.</p>
                 
                 <form method="POST">
                     <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">Global (GL) Status</span>
-                            <input type="checkbox" name="status_global" <?= $statuses['global'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_global" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['global'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['warning'] ?? $statuses['global'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['global'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
                         
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">Korea (KR) Status</span>
-                            <input type="checkbox" name="status_korea" <?= $statuses['korea'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_korea" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['korea'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['korea'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['korea'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
 
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">Taiwan (TW) Status</span>
-                            <input type="checkbox" name="status_taiwan" <?= $statuses['taiwan'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_taiwan" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['taiwan'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['taiwan'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['taiwan'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
 
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">VNG Status</span>
-                            <input type="checkbox" name="status_vng" <?= $statuses['vng'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_vng" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['vng'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['vng'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['vng'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
 
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">ESP Feature Status</span>
-                            <input type="checkbox" name="status_esp" <?= $statuses['esp'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_esp" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['esp'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['esp'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['esp'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
 
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">Aimbot Feature Status</span>
-                            <input type="checkbox" name="status_aimbot" <?= $statuses['aimbot'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_aimbot" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['aimbot'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['aimbot'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['aimbot'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
 
-                        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);">
+                        <div style="background: var(--bg); padding: 15px 20px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700;">Silent Aim Feature Status</span>
-                            <input type="checkbox" name="status_silent" <?= $statuses['silent'] ? 'checked' : '' ?> style="width: 20px; height: 20px; cursor: pointer;">
-                        </label>
+                            <select name="status_silent" class="form-control" style="width: 220px;">
+                                <option value="safe" <?= ($statuses['silent'] === 'safe') ? 'selected' : '' ?>>🟢 Full Safe</option>
+                                <option value="warning" <?= ($statuses['silent'] === 'warning') ? 'selected' : '' ?>>🟡 Play on secondary account</option>
+                                <option value="unsafe" <?= ($statuses['silent'] === 'unsafe') ? 'selected' : '' ?>>🔴 Unsafe / Do not play</option>
+                            </select>
+                        </div>
                     </div>
                     <button type="submit" name="update_statuses" class="btn btn-primary">Save Statuses</button>
                 </form>
