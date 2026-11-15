@@ -21,10 +21,9 @@ M7MD_CFLAGS += -I. -ISDK -I/opt/theos/include
 M7MD_CCFLAGS = -w -std=gnu++17 -fno-rtti -fno-exceptions -DNDEBUG -Wno-module-import-in-extern-c
 M7MD_CFLAGS = -w -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-value
 
-# ÖNEMLİ DEĞİŞİKLİK: Dosyaları tek tek ve net bir şekilde tanımlıyoruz
+# Tüm dosyaların listesi (Sadece kesin olanlar, KeySystem ve Çince klasör yok)
 M7MD_FILES = \
     Menux/*.mm \
-    菜单/*.mm \
     View/*.mm \
     CustomView/*.m \
     utils/*.cpp \
@@ -47,7 +46,6 @@ M7MD_FILES = \
     NSURLSession+ZXHttpProxy/*.m \
     main/*.m \
     旁路/*.mm \
-    behaviorbypassforESP/*.h \
     Bypass.mm \
     JRMemory/MemScan.mm
 
