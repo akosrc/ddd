@@ -1,14 +1,54 @@
-TARGET := iphone:clang:latest:14.0
 ARCHS = arm64
+DEBUG = 0
+FINALPACKAGE = 1
+FOR_RELEASE = 1
+THEOS_PACKAGE_SCHEME = rootless
+
+# --- iOS 18.0 ve ÜZERİ İÇİN HEDEF AYARI ---
+TARGET = iphone:clang:latest:18.0
 
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = M7MD
 
-M7MD_FILES = Dolphins.mm FloatView.mm OverlayView.mm 菜单.mm Bypass.mm KeySystem.mm ImageResources.m
+# Frameworkler
+M7MD_FRAMEWORKS = IOKit UIKit Foundation Security QuartzCore CoreGraphics CoreText AVFoundation Accelerate GLKit SystemConfiguration GameController WebKit
 
-M7MD_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-function -Wno-nontrivial-memcall -Wno-nonportable-include-path -I. -Iimgui -Iutils
+# Arama yolları
+M7MD_CFLAGS += -I. -ISDK -I/opt/theos/include
 
-M7MD_FRAMEWORKS = UIKit Foundation CoreGraphics Metal QuartzCore
+# Derleyici ayarları
+M7MD_CCFLAGS = -w -std=gnu++17 -fno-rtti -fno-exceptions -DNDEBUG -Wno-module-import-in-extern-c
+M7MD_CFLAGS = -w -fobjc-arc -Wno-deprecated-declarations -Wno-unused-variable -Wno-unused-value
 
-include $(THEOS_MAKE_PATH)/tweak.mk
+# ÖNEMLİ DEĞİŞİKLİK: Dosyaları tek tek ve net bir şekilde tanımlıyoruz
+M7MD_FILES = \
+    Menux/*.mm \
+    菜单/*.mm \
+    View/*.mm \
+    CustomView/*.m \
+    utils/*.cpp \
+    utils/*.m \
+    imgui/*.mm \
+    imgui/*.cpp \
+    ESP/*.mm \
+    ESP/*.cpp \
+    SDK/*.cpp \
+    NSURL+hook/*.m \
+    MBProgressHUD/*.m \
+    FCFileManager/*.m \
+    NSEtcHosts/*.m \
+    DBLOCKRASHID/*.m \
+    ZXURLProtocol/*.m \
+    EtcHostsURLProtocol/*.m \
+    NSObject+URL/*.m \
+    ViewController/*.m \
+    ZXHttpIPGet/*.m \
+    NSURLSession+ZXHttpProxy/*.m \
+    main/*.m \
+    旁路/*.mm \
+    behaviorbypassforESP/*.h \
+    Bypass.mm \
+    JRMemory/MemScan.mm
+
+include $(THEOS)/makefiles/tweak.mk
