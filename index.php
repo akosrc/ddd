@@ -1,5 +1,5 @@
 <?php
 // Kullanıcıyı doğrudan admin paneline yönlendir
-header("Location: barısagggg?????.php");
+header("Location: admin.php");
 exit;
 ?>
