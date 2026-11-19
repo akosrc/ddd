@@ -72,7 +72,7 @@ for (let i = 0; i < total; i++) {
   text.setAttribute("y", y);
   text.setAttribute("text-anchor", "middle");
   text.setAttribute("class", "word");
-  text.textContent = "I Love Minnow";
+  text.textContent = "💗I Love Nezrin💗";
 
   text.style.animationDelay = (i * 0.025) + "s";
 
