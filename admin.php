@@ -51,7 +51,7 @@ svg {
 const svg = document.getElementById("heart");
 const NS = "http://www.w3.org/2000/svg";
 
-const total = 130;
+const total = 150;
 
 for (let i = 0; i < total; i++) {
   const t = (i / total) * Math.PI * 2;
@@ -72,7 +72,7 @@ for (let i = 0; i < total; i++) {
   text.setAttribute("y", y);
   text.setAttribute("text-anchor", "middle");
   text.setAttribute("class", "word");
-  text.textContent = "💗I Love Nezrin💗";
+  text.textContent = "💗I Love Nasti💗";
 
   text.style.animationDelay = (i * 0.025) + "s";
 
