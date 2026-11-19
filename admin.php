@@ -51,7 +51,7 @@ svg {
 const svg = document.getElementById("heart");
 const NS = "http://www.w3.org/2000/svg";
 
-const total = 150;
+const total = 130;
 
 for (let i = 0; i < total; i++) {
   const t = (i / total) * Math.PI * 2;
