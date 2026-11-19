@@ -1,250 +1,84 @@
+
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nezrin & Barsaggg?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Love Nastı</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        body {
-            min-height: 100vh;
-            min-height: 100dvh;
-            background: radial-gradient(circle at top, #2a121e 0%, #0d060a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Montserrat', sans-serif;
-            padding: 20px;
-            overflow: hidden;
-        }
+body {
+  background: black;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
 
-        /* Arxa fonda yavaş-yavaş üzən işıq */
-        .glow-bg {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 45, 111, 0.15);
-            filter: blur(100px);
-            border-radius: 50%;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulseGlow 6s infinite alternate;
-            z-index: -1;
-        }
+svg {
+  width: 95vw;
+  max-width: 600px;
+  height: 90vh;
+}
 
-        @keyframes pulseGlow {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
-        }
+.word {
+  fill: #ff69b4;
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+  font-weight: bold;
+  opacity: 0;
+  filter: drop-shadow(0 0 4px #ff1493);
+  animation: show 0.5s forwards;
+}
 
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 40px;
-            padding: 50px 30px;
-            max-width: 420px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 45, 111, 0.1);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Adlar alt-alta */
-        .title {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: #fff;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            text-shadow: 0 0 20px rgba(255, 45, 111, 0.4);
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .title-amp {
-            color: #ff2d6f;
-            font-style: italic;
-            font-weight: 400;
-            font-size: 2.5rem;
-            margin: 5px 0;
-        }
-
-        /* "Əbədi sevgi" silindi */
-
-        .question {
-            font-size: 1.4rem;
-            color: #ffe6f0;
-            margin: 30px 0 40px;
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 400;
-            transition: all 0.3s ease;
-            line-height: 1.5;
-        }
-
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border-radius: 20px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: none;
-            outline: none;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .btn-yes {
-            background: linear-gradient(135deg, #ff2d6f 0%, #d4145a 100%);
-            color: white;
-            box-shadow: 0 10px 25px rgba(255, 45, 111, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-        }
-
-        .btn-yes:active {
-            transform: scale(0.97);
-            box-shadow: 0 5px 15px rgba(255, 45, 111, 0.4);
-        }
-
-        .btn-no {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .btn-no:active {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Ürək animasiyası */
-        .heart {
-            display: inline-block;
-            color: #ff2d6f;
-            font-size: 1.2rem;
-            margin-left: 5px;
-            animation: heartBeat 1.5s infinite;
-        }
-
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.2); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.2); }
-            60% { transform: scale(1); }
-        }
-
-        /* Silkələnmə animasiyası */
-        .shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-    </style>
+@keyframes show {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
 </head>
 <body>
 
-    <div class="glow-bg"></div>
+<svg id="heart" viewBox="0 0 400 400"></svg>
 
-    <div class="card">
-        <!-- Adlar alt-alta yazılıb -->
-        <h1 class="title">
-            Nezrin 
-            <span class="title-amp">&</span> 
-            Barsaggg?
-        </h1>
+<script>
+const svg = document.getElementById("heart");
+const NS = "http://www.w3.org/2000/svg";
 
-        <div class="question" id="questionText">Barışaq?</div>
+const total = 150;
 
-        <div class="buttons">
-            <button class="btn btn-yes" id="yesBtn">Hə <span class="heart">❤</span></button>
-            <button class="btn btn-no" id="noBtn">Yox</button>
-        </div>
-    </div>
+for (let i = 0; i < total; i++) {
+  const t = (i / total) * Math.PI * 2;
 
-    <script>
-        const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
-        const questionEl = document.getElementById('questionText');
+  const x = 200 + 16 *
+    Math.pow(Math.sin(t), 3) * 10;
 
-        // Ardıcıl dəyişəcək yazılar
-        const noMessages = [
-            "Barışaq?",          // İlk yazı
-            "Degiggg?",       // Yoxa ilk basanda (istədiyin kimi yazdım, istəsən düzəldərsən)
-            "Barsagg mencee",   // İkinci basış
-            "İndi Neyneyeceksen? 🤷" // Üçüncü basış (Yox silinməmişdən əvvəlki son yazı)
-        ];
+  const y = 190 - (
+    13 * Math.cos(t) -
+    5 * Math.cos(2*t) -
+    2 * Math.cos(3*t) -
+    Math.cos(4*t)
+  ) * 10;
 
-        let noCount = 0;
-        let isNoDeleted = false;
+  const text = document.createElementNS(NS, "text");
 
-        // "Yox" düyməsinə basanda
-        noBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (isNoDeleted) return;
+  text.setAttribute("x", x);
+  text.setAttribute("y", y);
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("class", "word");
+  text.textContent = "I Love You";
 
-            // Düyməyə silkələnmə effekti
-            noBtn.classList.add('shake');
-            setTimeout(() => noBtn.classList.remove('shake'), 400);
+  text.style.animationDelay = (i * 0.025) + "s";
 
-            // Yazını dəyişdir
-            questionEl.style.opacity = 0;
-            
-            setTimeout(() => {
-                if (noCount < noMessages.length) {
-                    questionEl.textContent = noMessages[noCount];
-                }
-                questionEl.style.opacity = 1;
-                noCount++;
-            }, 150);
+  svg.appendChild(text);
+}
+</script>
 
-            // 3 dəfə basıldıqdan sonra "Yox" düyməsini tam sil
-            if (noCount === 3) {
-                isNoDeleted = true;
-                noBtn.style.opacity = 0;
-                noBtn.style.transform = 'scale(0.5) translateY(20px)';
-                
-                // Tamamilə yox etmək üçün bir az sonra gizlət
-                setTimeout(() => {
-                    noBtn.style.display = 'none';
-                    // "Hə" düyməsini bir az də böyüt ki, tək qalanda gözəl görünsün
-                    yesBtn.style.transform = 'scale(1.05)';
-                }, 500);
-            }
-        });
-
-        // "Hə" düyməsinə basanda WhatsApp-a keçid
-        yesBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = "https://wa.me/message/74ZQ3DIDXZSTB1";
-        });
-    </script>
 </body>
 </html>
