@@ -1,136 +1,179 @@
-<?php
-header('Content-Type: application/json');
-
-$json_file = "keys.json";
-$backup_file = "keys_backup.json";
-
-// Dosya yoksa oluştur
-if (!file_exists($json_file)) {
-    file_put_contents($json_file, json_encode([]));
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADMIN PANEL</title>
+<style>
+:root{--bg:#08090c;--panel:#111319;--panel2:#171a22;--text:#f4f5f7;--muted:#9298a6;--line:#272b35;--accent:#fff;--accentText:#08090c;--danger:#ff5263;--good:#37d996;--radius:14px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,system-ui,Arial;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.side{background:#0d0f14;border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto}.brand{font-weight:900;letter-spacing:2px;font-size:18px;padding:8px 10px 22px;display:flex;align-items:center;gap:10px}.brand i{width:28px;height:28px;background:var(--accent);border-radius:8px;display:inline-block}.navlabel{color:#697080;font-size:10px;font-weight:800;letter-spacing:1.5px;padding:16px 10px 7px}.nav button{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:#aeb4c0;padding:11px 12px;border-radius:9px;text-align:left;margin:2px 0}.nav button:hover,.nav button.active{background:#20232c;color:#fff}.nav button.active{box-shadow:inset 3px 0 var(--accent)}.nav .ico{width:18px;text-align:center}.sidefoot{border-top:1px solid var(--line);margin-top:20px;padding:15px 10px;color:var(--muted);font-size:12px}
+main{min-width:0}.top{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;background:#08090ceF;backdrop-filter:blur(12px);z-index:5}.crumb{color:var(--muted)}.topright{display:flex;align-items:center;gap:12px}.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accentText);display:grid;place-items:center;font-weight:900}.content{padding:28px;max-width:1600px;margin:auto}.pagehead{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:22px}.pagehead h1{font-size:25px;margin:0 0 6px}.sub{color:var(--muted)}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 13px;border-radius:9px}.btn.primary{background:var(--accent);color:var(--accentText);border-color:var(--accent);font-weight:800}.btn.danger{color:var(--danger);border-color:#5a2830}.btn.small{padding:6px 9px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}.stat{padding:17px}.stat .label{color:var(--muted);font-size:12px}.stat strong{display:block;font-size:27px;margin:8px 0 4px}.stat small{color:var(--good)}.panel{padding:18px;margin-bottom:16px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.panelhead h3{margin:0;font-size:15px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.field{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 11px;border-radius:9px;min-width:0;outline:none}.field:focus{border-color:var(--accent)}.search{flex:1;min-width:180px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);font-weight:700}td{color:#e2e5eb}.pill{display:inline-block;padding:4px 8px;border-radius:20px;font-size:10px;background:#242934;color:#cbd1dc}.pill.good{background:#123528;color:#55e4a8}.pill.bad{background:#3c1b23;color:#ff8290}.pill.warn{background:#3c3017;color:#ffd477}.muted{color:var(--muted)}.empty{text-align:center;padding:30px;color:var(--muted)}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.formgroup{display:flex;flex-direction:column;gap:6px}.formgroup label{font-size:12px;color:var(--muted)}.formgroup.full{grid-column:1/-1}.switchrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:12px}.switch{appearance:none;width:38px;height:21px;border-radius:20px;background:#444;position:relative;cursor:pointer;flex:none}.switch:checked{background:var(--accent)}.switch:before{content:"";position:absolute;width:15px;height:15px;border-radius:50%;background:white;top:3px;left:3px;transition:.2s}.switch:checked:before{left:20px;background:var(--accentText)}.themegrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.theme{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel2);text-align:left;color:var(--text)}.theme.active{outline:2px solid var(--accent)}.swatches{display:flex;gap:4px;margin-bottom:8px}.swatches i{height:22px;flex:1;border-radius:4px}.theme small{color:var(--muted)}.colorrow{display:flex;align-items:center;gap:10px}.colorrow input{width:42px;height:34px;background:none;border:0}.modalback{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}.modalback.show{display:flex}.modal{width:min(540px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h2{margin:0;font-size:18px}.toast{position:fixed;right:20px;bottom:20px;background:#f5f5f5;color:#111;padding:12px 16px;border-radius:10px;display:none;z-index:40}.toast.show{display:block}.quick{display:flex;gap:8px;flex-wrap:wrap}.progress{height:7px;background:#292d37;border-radius:8px;overflow:hidden}.progress span{display:block;height:100%;background:var(--accent);width:68%}.featurelist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.feature{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px;color:#c7ccd6}.feature b{display:block;color:var(--text);margin-bottom:4px}
+@media(max-width:1000px){.app{grid-template-columns:210px 1fr}.grid{grid-template-columns:repeat(2,1fr)}.themegrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.app{display:block}.side{height:auto;position:relative;padding:12px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:4px 8px 12px}.nav{display:flex;overflow:auto;gap:5px}.navlabel,.sidefoot{display:none}.nav button{white-space:nowrap;width:auto;padding:9px}.top{padding:0 14px}.content{padding:18px 13px}.pagehead{flex-direction:column}.grid{gap:9px}.stat{padding:12px}.stat strong{font-size:22px}.two{grid-template-columns:1fr}.themegrid{grid-template-columns:repeat(2,1fr)}.featurelist{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body><div class="app">
+<aside class="side"><div class="brand"><i></i> ADMIN PANEL</div><nav class="nav" id="nav">
+<div class="navlabel">GENEL</div>
+<button class="active" data-page="dashboard"><span class="ico">▦</span> Dashboard</button>
+<button data-page="keys"><span class="ico">⌘</span> Key Yönetimi</button>
+<button data-page="banned"><span class="ico">⊘</span> Banned Keys</button>
+<button data-page="api"><span class="ico">⌁</span> API Yönetimi</button>
+<button data-page="users"><span class="ico">♙</span> Admin Kullanıcıları</button>
+<div class="navlabel">SİSTEM</div>
+<button data-page="logs"><span class="ico">≡</span> İşlem Kayıtları</button>
+<button data-page="analytics"><span class="ico">▥</span> Analitik</button>
+<button data-page="tools"><span class="ico">⚙</span> Araçlar</button>
+<button data-page="themes"><span class="ico">◐</span> Theme Studio</button>
+<button data-page="settings"><span class="ico">☷</span> Settings</button>
+<div class="navlabel">GELİŞMİŞ</div>
+<button data-page="security"><span class="ico">◆</span> Güvenlik</button>
+<button data-page="backup"><span class="ico">⇧</span> Yedekleme</button>
+<button data-page="about"><span class="ico">ⓘ</span> Sistem Bilgisi</button>
+</nav><div class="sidefoot">ADMIN PANEL • LOCAL DEMO<br><span id="clock"></span></div></aside>
+<main><header class="top"><div class="crumb">Workspace / <b id="crumb">Dashboard</b></div><div class="topright"><span class="muted" id="topdate"></span><div class="avatar">A</div></div></header><div class="content" id="view"></div></main>
+</div>
+<div class="modalback" id="modalback"><div class="modal"><div class="modalhead"><h2 id="modaltitle">Yeni kayıt</h2><button class="btn small" onclick="closeModal()">✕</button></div><div id="modalbody"></div></div></div><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{return JSON.parse(localStorage.getItem('ap_'+k))??d}catch{return d}},set(k,v){localStorage.setItem('ap_'+k,JSON.stringify(v))}};
+let keys=store.get('keys',[]), banned=store.get('banned',[]), logs=store.get('logs',[]), users=store.get('users',[{name:'Main Admin',email:'admin@local',role:'Owner',status:'Active'}]), apis=store.get('apis',[]), settings=store.get('settings',{siteName:'ADMIN PANEL',maintenance:false,notifications:true,loginAlerts:true,autoExpire:true,rows:10,accent:'#ffffff',rgb:false});
+let current='dashboard',filter='all';
+const themes=[
+['Obsidian','#08090c','#111319','#ffffff'],['Pure White','#f4f5f7','#ffffff','#111111'],['Midnight','#090d1a','#121a2b','#7c9cff'],['Graphite','#17191d','#22252b','#e4e7eb'],['Carbon','#101010','#1b1b1b','#f5f5f5'],
+['Arctic','#eaf2f8','#ffffff','#176b87'],['Ocean','#071b2b','#0d2d45','#36bde8'],['Sapphire','#0d1230','#171f49','#8298ff'],['Emerald','#071b16','#102c22','#38d99a'],['Forest','#101c13','#1c3020','#9bd477'],
+['Ruby','#200d12','#35151e','#ff667d'],['Rose','#24131d','#38202f','#ff8fc7'],['Violet','#171027','#25183e','#b99aff'],['Purple Haze','#1d1230','#30204b','#d0a0ff'],['Lavender','#f1edfa','#ffffff','#8864c7'],
+['Sunset','#25140e','#3a2118','#ff9a63'],['Amber','#241b0b','#3a2b12','#ffc45c'],['Sand','#f2eee5','#fffaf0','#8e7045'],['Copper','#211610','#38271e','#e9a16f'],['Gold','#201b0b','#332b12','#e9c75b'],
+['Cyber Green','#07140d','#0d2517','#00ff88'],['Neon Blue','#07131d','#102638','#00c8ff'],['Neon Pink','#200c1b','#35132b','#ff45c7'],['Matrix','#050d08','#0b1b10','#68ff7c'],['Synthwave','#170b24','#28133c','#ff5edb'],
+['Nord','#202832','#2c3846','#88c0d0'],['Dracula','#191a21','#282a36','#bd93f9'],['Monokai','#22201b','#343128','#a6e22e'],['Coffee','#1c1714','#30251f','#c69c79'],['Slate','#151b24','#202b38','#9db4ce']
+];
+const navNames={dashboard:'Dashboard',keys:'Key Yönetimi',banned:'Banned Keys',api:'API Yönetimi',users:'Admin Kullanıcıları',logs:'İşlem Kayıtları',analytics:'Analitik',tools:'Araçlar',themes:'Theme Studio',settings:'Settings',security:'Güvenlik',backup:'Yedekleme',about:'Sistem Bilgisi'};
+function save(){store.set('keys',keys);store.set('banned',banned);store.set('logs',logs);store.set('users',users);store.set('apis',apis);store.set('settings',settings)}
+function log(action,detail=''){logs.unshift({time:new Date().toLocaleString('tr-TR'),action,detail});logs=logs.slice(0,500);save()}
+function toast(t){let x=$('#toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function makeKey(){return 'KEY-'+Array.from(crypto.getRandomValues(new Uint8Array(3))).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()+'-'+Array.from(crypto.getRandomValues(new Uint8Array(5))).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}
+function pageHead(title,sub,actions=''){return `<div class="pagehead"><div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="actions">${actions}</div></div>`}
+function stats(items){return `<div class="grid">${items.map(x=>`<div class="stat"><div class="label">${x[0]}</div><strong>${x[1]}</strong><small>${x[2]||'● Sistem verisi'}</small></div>`).join('')}</div>`}
+function table(headers,rows){return `<div class="tablewrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${headers.length}" class="empty">Henüz kayıt bulunmuyor</td></tr>`}</tbody></table></div>`}
+function render(){
+$('#crumb').textContent=navNames[current];
+$$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===current));
+let v='';
+if(current==='dashboard'){
+v=pageHead('Dashboard','Sistemin genel durumunu buradan takip et.','<button class="btn" onclick="exportData()">↧ Export</button><button class="btn primary" onclick="openKey()">＋ Create Key</button>')+
+stats([['Toplam Key',keys.length],['Aktif Key',keys.filter(k=>k.status==='Active').length],['Banned Key',banned.length],['Admin Kullanıcı',users.length]])+
+`<div class="two"><section class="panel"><div class="panelhead"><h3>Son Key Kayıtları</h3><button class="btn small" onclick="go('keys')">Tümünü gör</button></div>${table(['KEY','PLAN','DURUM','OLUŞTURULMA'],keys.slice(0,5).map(k=>`<tr><td>${esc(k.key)}</td><td>${esc(k.plan)}</td><td><span class="pill ${k.status==='Active'?'good':'bad'}">${k.status}</span></td><td>${esc(k.created)}</td></tr>`).join(''))}</section><section class="panel"><div class="panelhead"><h3>Sistem Durumu</h3><span class="pill good">● Online</span></div><div class="switchrow"><span>Key sistemi</span><b class="pill good">Çalışıyor</b></div><div class="switchrow"><span>Yerel depolama</span><b class="pill good">Aktif</b></div><div class="switchrow"><span>Bakım modu</span><b class="pill ${settings.maintenance?'warn':'good'}">${settings.maintenance?'Açık':'Kapalı'}</b></div><div class="switchrow"><span>Son işlem</span><span class="muted">${logs[0]?.action||'Henüz yok'}</span></div></section></div>
+<section class="panel"><div class="panelhead"><h3>Hızlı İşlemler</h3></div><div class="quick"><button class="btn" onclick="openKey()">＋ Key oluştur</button><button class="btn" onclick="go('banned')">⊘ Ban listesi</button><button class="btn" onclick="go('themes')">◐ Tema değiştir</button><button class="btn" onclick="go('backup')">⇧ Yedek al</button><button class="btn" onclick="go('logs')">≡ Logları aç</button></div></section>`;
 }
-
-// Dosya kilit sistemi (Aynı anda iki kişi giriş yaparsa veri bozulmasını önler)
-$fp = fopen($json_file, 'c+');
-if (flock($fp, LOCK_EX)) {
-    $file_content = fread($fp, filesize($json_file));
-    $keys_data = json_decode($file_content, true);
-    
-    if (!is_array($keys_data)) {
-        $keys_data = [];
-    }
-
-    $input = json_decode(file_get_contents('php://input'), true);
-    $key = isset($input['key']) ? trim($input['key']) : '';
-    $device_id = isset($input['device_id']) ? trim($input['device_id']) : '';
-    $device_model = isset($input['device_model']) ? trim($input['device_model']) : 'Unknown Device';
-    $battery = isset($input['battery']) ? trim($input['battery']) : 'Unknown';
-
-    // IP Adresi Al
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) { $ip_address = $_SERVER['HTTP_CLIENT_IP']; } 
-    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip_address = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]; } 
-    else { $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'Unknown IP'; }
-
-    // Boş veri kontrolü
-    if (empty($key) || empty($device_id)) {
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "error", "message" => "Key ve ya Device ID daxil edilmeyib."]); exit;
-    }
-
-    // Key var mı?
-    if (!isset($keys_data[$key])) {
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "error", "message" => "Key movcud deyil."]); exit;
-    }
-
-    $key_info = $keys_data[$key];
-
-    // Ban kontrolü
-    if ($key_info['status'] == 'banned') {
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "crash", "message" => "Key bloklandi!"]); exit;
-    }
-
-    // Global Stop kontrolü
-    if ($key_info['status'] == 'global_banned') {
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "crash", "message" => "Sistem dayandirildi!"]); exit;
-    }
-
-    // SÜRE KONTROLÜ (Eğer süre başlamışsa ve geçmişse)
-    if ($key_info['expire'] > 0 && $key_info['expire'] < time()) {
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "crash", "message" => "Keyin vaxti bitib!"]); exit;
-    }
-
-    $devices = isset($key_info['devices']) && is_array($key_info['devices']) ? $key_info['devices'] : [];
-    $device_exists = false;
-    $device_index = -1;
-
-    // Cihaz daha önce kaydedilmiş mi kontrol et
-    foreach ($devices as $index => $dev) {
-        $d_id = is_array($dev) ? ($dev['id'] ?? '') : $dev;
-        if ($d_id === $device_id) {
-            $device_exists = true;
-            $device_index = $index;
-            break;
-        }
-    }
-
-    // EĞER SÜRE HENÜZ BAŞLAMADIYSA (expire == 0 ise) VE LIFETIME DEĞİLSE
-    if ($key_info['expire'] == 0 && isset($key_info['duration']) && $key_info['duration'] != -1) {
-        $keys_data[$key]['expire'] = time() + $key_info['duration'];
-    }
-
-    if (count($devices) == 0) {
-        // İlk cihaz kaydı
-        $keys_data[$key]['devices'][] = [
-            'id' => $device_id, 
-            'model' => $device_model, 
-            'ip' => $ip_address, 
-            'battery' => $battery, 
-            'date' => date('Y-m-d H:i:s')
-        ];
-        file_put_contents($json_file, json_encode($keys_data, JSON_PRETTY_PRINT));
-        file_put_contents($backup_file, json_encode($keys_data, JSON_PRETTY_PRINT));
-        
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "success", "message" => "Giris ugurludur. Cihaz qeyde alindi."]); exit;
-    } 
-    elseif (!$device_exists) {
-        // Yeni cihaz ekleme (Limit kontrolü)
-        if (count($devices) >= $key_info['max_devices']) {
-            flock($fp, LOCK_UN); fclose($fp);
-            echo json_encode(["status" => "crash", "message" => "Bu key basqa cihazda aktivdir! Limit dolub."]); exit;
-        }
-        
-        $keys_data[$key]['devices'][] = [
-            'id' => $device_id, 
-            'model' => $device_model, 
-            'ip' => $ip_address, 
-            'battery' => $battery, 
-            'date' => date('Y-m-d H:i:s')
-        ];
-        file_put_contents($json_file, json_encode($keys_data, JSON_PRETTY_PRINT));
-        file_put_contents($backup_file, json_encode($keys_data, JSON_PRETTY_PRINT));
-        
-        flock($fp, LOCK_UN); fclose($fp);
-        echo json_encode(["status" => "success", "message" => "Yeni cihaz qeyde alindi."]); exit;
-    }
-
-    // Kayıtlı cihaz tekrar giriş yaparsa (Heartbeat) pil ve IP bilgisini güncelle
-    $keys_data[$key]['devices'][$device_index]['battery'] = $battery;
-    $keys_data[$key]['devices'][$device_index]['ip'] = $ip_address;
-    
-    file_put_contents($json_file, json_encode($keys_data, JSON_PRETTY_PRINT));
-    
-    flock($fp, LOCK_UN); fclose($fp);
-    echo json_encode(["status" => "success", "message" => "Giris ugurludur."]);
-    exit;
-
-} else {
-    // Kilitlenme durumunda hata dön
-    fclose($fp);
-    echo json_encode(["status" => "error", "message" => "Server mesguldur, zehmet olmasa yeniden cehd edin."]);
-    exit;
+if(current==='keys'){
+let list=keys.filter(k=>(filter==='all'||k.status.toLowerCase()===filter)&&(!window.keySearch||JSON.stringify(k).toLowerCase().includes(window.keySearch)));
+v=pageHead('Key Yönetimi','Key oluştur, düzenle, filtrele ve durumlarını yönet.','<button class="btn" onclick="bulkKeys()">＋ Toplu üret</button><button class="btn primary" onclick="openKey()">＋ Yeni Key</button>')+stats([['Toplam',keys.length],['Aktif',keys.filter(k=>k.status==='Active').length],['Pasif',keys.filter(k=>k.status==='Disabled').length],['Süresi dolan',keys.filter(k=>k.status==='Expired').length]])+
+`<section class="panel"><div class="toolbar"><input class="field search" placeholder="Key, plan veya not ara..." oninput="window.keySearch=this.value;render()"><select class="field" onchange="filter=this.value;render()"><option value="all">Tüm durumlar</option><option value="active">Aktif</option><option value="disabled">Pasif</option><option value="expired">Süresi dolan</option></select><button class="btn" onclick="exportKeys()">CSV indir</button><button class="btn" onclick="exportKeysTxt()">TXT indir</button><label class="btn">TXT içe aktar<input type="file" accept=".txt,text/plain" hidden onchange="importKeysTxt(this.files[0]);this.value=''"></label></div>${table(['KEY','PLAN','DURUM','KULLANIM','SÜRE','OLUŞTURMA','İŞLEMLER'],list.map(k=>`<tr><td><b>${esc(k.key)}</b></td><td>${esc(k.plan)}</td><td><span class="pill ${k.status==='Active'?'good':k.status==='Expired'?'warn':'bad'}">${k.status}</span></td><td>${k.uses||0}/${k.limit||'∞'}</td><td>${esc(k.expiry||'Sınırsız')}</td><td>${esc(k.created)}</td><td><button class="btn small" onclick="toggleKey('${k.id}')">${k.status==='Active'?'Pasifleştir':'Aktifleştir'}</button> <button class="btn small" onclick="banKey('${k.id}')">Ban</button> <button class="btn small danger" onclick="deleteKey('${k.id}')">Sil</button></td></tr>`).join(''))}</section>`;
 }
-?>
+if(current==='banned'){
+v=pageHead('Banned Keys','Engellenen anahtarları ve ban nedenlerini yönet.','<button class="btn primary" onclick="openBan()">＋ Ban ekle</button>')+stats([['Banlı Key',banned.length],['Son 24 saat',banned.filter(b=>Date.now()-b.ts<86400000).length],['Engelleme durumu','Aktif']])+`<section class="panel"><div class="toolbar"><input class="field search" placeholder="Banlı key ara..." oninput="window.banSearch=this.value;render()"></div>${table(['KEY / DEĞER','NEDEN','TARİH','İŞLEM'],banned.filter(b=>!window.banSearch||JSON.stringify(b).toLowerCase().includes(window.banSearch)).map(b=>`<tr><td>${esc(b.value)}</td><td>${esc(b.reason)}</td><td>${esc(b.date)}</td><td><button class="btn small" onclick="unban('${b.id}')">Ban kaldır</button></td></tr>`).join(''))}</section>`;
+}
+if(current==='api'){
+v=pageHead('API Yönetimi','Yerel demo API kayıtlarını ve etiketlerini yönet.','<button class="btn primary" onclick="openApi()">＋ API kaydı</button>')+`<section class="panel"><div class="muted" style="margin-bottom:14px">Bu ekran gerçek API sunucusu oluşturmaz. API anahtarlarını güvenli biçimde backend tarafında saklamalısın.</div>${table(['AD','HOST / URL','DURUM','OLUŞTURULMA','İŞLEM'],apis.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.url)}</td><td><span class="pill ${a.status==='Active'?'good':'bad'}">${a.status}</span></td><td>${esc(a.date)}</td><td><button class="btn small" onclick="delApi('${a.id}')">Sil</button></td></tr>`).join(''))}</section>`;
+}
+if(current==='users'){
+v=pageHead('Admin Kullanıcıları','Panel erişimi olan kullanıcıların rol ve durumları.','<button class="btn primary" onclick="openUser()">＋ Admin ekle</button>')+`<section class="panel">${table(['KULLANICI','E-POSTA','ROL','DURUM','İŞLEM'],users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${esc(u.role)}</td><td><span class="pill good">${esc(u.status)}</span></td><td><button class="btn small danger" onclick="delUser('${u.id||''}')">Sil</button></td></tr>`).join(''))}</section>`;
+}
+if(current==='logs'){
+v=pageHead('İşlem Kayıtları','Panelde gerçekleştirilen yerel demo işlemlerinin geçmişi.','<button class="btn" onclick="exportLogs()">CSV indir</button><button class="btn danger" onclick="clearLogs()">Logları temizle</button>')+`<section class="panel"><div class="toolbar"><input class="field search" placeholder="İşlem veya detay ara..." oninput="window.logSearch=this.value;render()"></div>${table(['ZAMAN','İŞLEM','DETAY'],logs.filter(l=>!window.logSearch||JSON.stringify(l).toLowerCase().includes(window.logSearch)).map(l=>`<tr><td>${esc(l.time)}</td><td>${esc(l.action)}</td><td>${esc(l.detail)}</td></tr>`).join(''))}</section>`;
+}
+if(current==='analytics'){
+v=pageHead('Analitik','Key ve yönetim verilerinin özeti.')+stats([['Key toplamı',keys.length],['Ban oranı',keys.length?Math.round(banned.length/keys.length*100)+'%':'0%'],['Admin sayısı',users.length],['Log sayısı',logs.length]])+`<div class="two"><section class="panel"><h3>Key durum dağılımı</h3>${[['Aktif',keys.filter(k=>k.status==='Active').length],['Pasif',keys.filter(k=>k.status==='Disabled').length],['Süresi dolan',keys.filter(k=>k.status==='Expired').length]].map(x=>`<div class="switchrow"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</section><section class="panel"><h3>Depolama özeti</h3><p class="muted">Bu istatistikler yalnızca bu tarayıcıdaki yerel demo verilerinden hesaplanır.</p><div class="progress"><span></span></div><p class="muted">${keys.length+banned.length+logs.length} kayıt toplamı</p></section></div>`;
+}
+if(current==='tools'){
+const tools=['Key formatı üretici','Toplu key üretici','CSV dışa aktarma','JSON dışa aktarma','JSON içe aktarma','Veri temizleme','Tarih hesaplayıcı','Rastgele ID üretici','Şifre üretici','Metin dönüştürücü','JSON biçimlendirici','Log filtreleyici','Sistem kontrolü','Tema önizleme','Yerel depolama kontrolü','Key durum denetimi','Ban listesi denetimi','Kullanım limiti kontrolü'];
+v=pageHead('Araçlar','Yönetim paneli için yardımcı araçlar.')+`<section class="panel"><div class="featurelist">${tools.map(t=>`<div class="feature"><b>${t}</b><span class="muted">Yerel yardımcı araç</span></div>`).join('')}</div><div class="actions" style="margin-top:15px"><button class="btn" onclick="bulkKeys()">Toplu key oluştur</button><button class="btn" onclick="exportData()">JSON yedekle</button><button class="btn" onclick="toast(makeKey())">Rastgele key üret</button></div></section>`;
+}
+if(current==='themes'){
+v=pageHead('Theme Studio','30 hazır tema arasından seçim yap veya kendi rengini oluştur.')+`<section class="panel"><div class="panelhead"><h3>Hazır temalar</h3><span class="pill">${themes.length} tema</span></div><div class="themegrid">${themes.map((t,i)=>`<button class="theme ${store.get('theme',0)===i?'active':''}" onclick="setTheme(${i})"><div class="swatches"><i style="background:${t[1]}"></i><i style="background:${t[2]}"></i><i style="background:${t[3]}"></i></div><b>${t[0]}</b><br><small>${i===0?'Varsayılan siyah':i===1?'Beyaz tema':'Özel renk paleti'}</small></button>`).join('')}</div></section><section class="panel"><h3>Özel renk ayarı</h3><div class="formgrid"><div class="formgroup"><label>Ana renk</label><div class="colorrow"><input type="color" id="customColor" value="${settings.accent}" onchange="customAccent(this.value)"><span class="muted">Vurgu rengi</span></div></div><div class="formgroup"><label>RGB animasyon efekti</label><label class="switchrow"><span>RGB modu</span><input class="switch" type="checkbox" ${settings.rgb?'checked':''} onchange="settings.rgb=this.checked;document.body.classList.toggle('rgb',this.checked);save();toast('RGB ayarı güncellendi')"></label></div></div></section>`;
+}
+if(current==='settings'){
+const groups={'Genel':['Panel adı','Dil','Saat dilimi','Tarih biçimi','Saat biçimi','Varsayılan sayfa','Sayfa başına kayıt','Otomatik kaydetme','Bakım modu','Demo modu','Bildirimler','Ses efektleri','Animasyonlar','Compact görünüm','Sidebar sabitleme','Üst bar sabitleme','Tablo çizgileri','Tooltips','Onay pencereleri','Otomatik yenileme'],'Key sistemi':['Key prefix','Varsayılan plan','Varsayılan süre','Varsayılan kullanım limiti','Sınırsız kullanım','Tek cihaz limiti','IP eşleştirme','HWID eşleştirme','Key büyük harf','Otomatik süre sonu','Süresi dolanları arşivle','Key kopyalama butonu','Toplu üretim limiti','Duplicate kontrolü','Key not alanı','Key etiketleri','Key dışa aktarma','Key içe aktarma','Key silme onayı','Key durum geçmişi'],'Güvenlik':['Admin oturum süresi','İki aşamalı doğrulama','Başarısız giriş limiti','IP allowlist','IP blocklist','Yeni giriş bildirimi','Şüpheli işlem bildirimi','Oturum cihaz listesi','Oturum kapatma','CSRF koruması (backend)','Rate limit (backend)','Audit log','Şifre politikası','API erişim politikası','Ban otomatik süresi','Ban sebebi zorunlu','Ban kaldırma onayı','Admin rol kontrolü','Güvenli çerez (backend)','HTTPS zorunluluğu'],'Görünüm':['Tema','Ana renk','Arka plan','Panel rengi','Metin rengi','Kenar yuvarlaklığı','Yazı boyutu','Sidebar genişliği','Kart gölgesi','Gradient','RGB modu','RGB hızı','RGB parlaklığı','Light mode','Dark mode','Otomatik tema','Tema kaydetme','Özel CSS','Logo metni','Compact mode'],'Bildirimler':['Başarılı işlem bildirimi','Hata bildirimi','Key oluşturma bildirimi','Key ban bildirimi','Admin giriş bildirimi','Günlük özet','E-posta bildirimi (backend)','Webhook bildirimi (backend)','Bildirim sesi','Bildirim konumu'],'Gelişmiş':['Debug modu','Console log','API timeout','İstek tekrar sayısı','Cache süresi','Veri saklama süresi','Yedekleme aralığı','Otomatik yedekleme','JSON formatı','CSV ayırıcı','Tarih dili','Sistem etiketi','Özel metadata','Deneysel özellikler','Geliştirici modu']};
+v=pageHead('Settings','200+ yönetim seçeneği ve sistem tercihleri.','<button class="btn primary" onclick="save();toast(\\'Ayarlar kaydedildi\\')">Kaydet</button>')+`<div class="two"><section class="panel"><h3>Hızlı ayarlar</h3>${[['Bakım modu','maintenance'],['Bildirimler','notifications'],['Yeni giriş uyarıları','loginAlerts'],['Otomatik süre sonu','autoExpire']].map(x=>`<label class="switchrow"><span>${x[0]}</span><input class="switch" type="checkbox" ${settings[x[1]]?'checked':''} onchange="settings['${x[1]}']=this.checked;save()"></label>`).join('')}<div class="formgroup" style="margin-top:14px"><label>Panel adı</label><input class="field" value="${esc(settings.siteName)}" onchange="settings.siteName=this.value;save()"></div><div class="formgroup" style="margin-top:12px"><label>Tablo sayfa boyutu</label><select class="field" onchange="settings.rows=+this.value;save()">${[10,20,30,50,100].map(n=>`<option ${settings.rows===n?'selected':''}>${n}</option>`).join('')}</select></div></section><section class="panel"><h3>Settings kategorileri</h3><p class="muted">Aşağıdaki seçenekler kategori bazında düzenlenebilir. Backend gerektiren güvenlik ayarları burada bilgilendirme amaçlıdır.</p><div class="quick">${Object.keys(groups).map(g=>`<button class="btn small" onclick="document.getElementById('g_${g.replace(/\\W/g,'')}').scrollIntoView({behavior:'smooth'})">${g}</button>`).join('')}</div></section></div>`+Object.entries(groups).map(([g,items])=>`<section class="panel" id="g_${g.replace(/\\W/g,'')}"><div class="panelhead"><h3>${g}</h3><span class="pill">${items.length} seçenek</span></div><div class="formgrid">${items.map((x,i)=>`<label class="switchrow"><span>${x}</span><input class="switch" type="checkbox" ${['Otomatik kaydetme','Bildirimler','Animasyonlar','Audit log','Duplicate kontrolü','Key büyük harf','HTTPS zorunluluğu'].includes(x)?'checked':''} onchange="log('Ayar değişti','${x}')"></label>`).join('')}</div></section>`).join('');
+}
+if(current==='security'){
+v=pageHead('Güvenlik','Güvenlik kontrol listesi ve önerilen yapılandırma.')+`<section class="panel"><span class="pill warn">ÖNEMLİ</span><h3 style="margin-top:12px">Üretim ortamı güvenliği</h3><p class="muted">Bu HTML dosyası istemci tarafında çalışır. Gerçek admin yetkilendirmesi, key doğrulama, IP ban, API anahtar koruması ve rate limit için sunucu tarafı uygulama gerekir.</p>${['Admin şifrelerini backend üzerinde hash ile sakla','API secret değerlerini HTML içine yazma','HTTPS ve güvenli cookie kullan','Her istekte rol ve izin kontrolü yap','Rate limiting ve audit log ekle','Key doğrulamasını veritabanında yap','CSRF ve XSS koruması uygula','Düzenli yedek al'].map(x=>`<div class="switchrow"><span>${x}</span><span class="pill warn">Kontrol et</span></div>`).join('')}</section>`;
+}
+if(current==='backup'){
+v=pageHead('Yedekleme','Yerel panel verilerini dışa aktar veya yedekten geri yükle.','<button class="btn primary" onclick="exportData()">⇧ Yedek indir</button>')+`<section class="panel"><h3>JSON yedekleme</h3><p class="muted">Key, ban, log, kullanıcı, API kayıtları ve panel ayarları tek dosyada saklanır.</p><div class="actions"><button class="btn primary" onclick="exportData()">JSON dışa aktar</button><label class="btn">JSON içe aktar<input type="file" accept=".json,application/json" hidden onchange="importData(this.files[0])"></label></div></section><section class="panel"><h3>Tehlikeli bölge</h3><p class="muted">Tüm yerel panel kayıtlarını siler. Önce yedek al.</p><button class="btn danger" onclick="resetAll()">Tüm verileri sıfırla</button></section>`;
+}
+if(current==='about'){
+v=pageHead('Sistem Bilgisi','Panel sürümü ve çalışma ortamı.')+stats([['Sürüm','1.0.0'],['Tema sayısı',themes.length],['Ayar seçeneği','200+'],['Çalışma modu','Local']])+`<section class="panel"><h3>ADMIN PANEL</h3><p class="muted">Tek dosyalı, responsive HTML yönetim paneli. Tarayıcı localStorage kullanır. Gerçek kullanıcı doğrulaması ve merkezi key sistemi için backend bağlantısı eklenmelidir.</p><div class="switchrow"><span>Tarayıcı</span><b>${esc(navigator.userAgent.slice(0,80))}</b></div><div class="switchrow"><span>Yerel kayıt</span><b class="pill good">Aktif</b></div></section>`;
+}
+$('#view').innerHTML=v;
+}
+function go(p){current=p;render();window.scrollTo(0,0)}
+$('#nav').addEventListener('click',e=>{let b=e.target.closest('button[data-page]');if(b)go(b.dataset.page)});
+function openModal(title,body){$('#modaltitle').textContent=title;$('#modalbody').innerHTML=body;$('#modalback').classList.add('show')}
+function closeModal(){$('#modalback').classList.remove('show')}
+function openKey(){openModal('Yeni Key Oluştur',`<form onsubmit="createKey(event)"><div class="formgrid"><div class="formgroup full"><label>Key değeri (boş bırak: otomatik üret)</label><input class="field" id="kval" placeholder="Otomatik oluştur"></div><div class="formgroup"><label>Plan</label><select class="field" id="kplan"><option>Free</option><option>Basic</option><option>Pro</option><option>Premium</option><option>Lifetime</option></select></div><div class="formgroup"><label>Kullanım limiti</label><input class="field" id="klimit" type="number" min="1" placeholder="Sınırsız"></div><div class="formgroup"><label>Bitiş tarihi</label><input class="field" id="kexpiry" type="date"></div><div class="formgroup"><label>Not</label><input class="field" id="knote" placeholder="İsteğe bağlı"></div></div><button class="btn primary" style="margin-top:16px">Key oluştur</button></form>`)}
+function createKey(e){e.preventDefault();let k=$('#kval').value.trim()||makeKey();if(keys.some(x=>x.key===k)||banned.some(x=>x.value===k)){toast('Bu key zaten mevcut veya banlı');return}keys.unshift({id:crypto.randomUUID(),key:k,plan:$('#kplan').value,status:'Active',uses:0,limit:$('#klimit').value||'∞',expiry:$('#kexpiry').value||'',note:$('#knote').value,created:new Date().toLocaleDateString('tr-TR')});save();log('Key oluşturuldu',k);closeModal();render();toast('Key oluşturuldu')}
+function bulkKeys(){openModal('Toplu Key Üretimi',`<form onsubmit="createBulk(event)"><div class="formgroup"><label>Kaç adet key? (1-100)</label><input class="field" id="bulkCount" type="number" min="1" max="100" value="10"></div><div class="formgroup" style="margin-top:10px"><label>Plan</label><select class="field" id="bulkPlan"><option>Free</option><option>Basic</option><option>Pro</option><option>Premium</option><option>Lifetime</option></select></div><button class="btn primary" style="margin-top:15px">Üret</button></form>`)}
+function createBulk(e){e.preventDefault();let n=Math.min(100,Math.max(1,+$('#bulkCount').value));for(let i=0;i<n;i++)keys.unshift({id:crypto.randomUUID(),key:makeKey(),plan:$('#bulkPlan').value,status:'Active',uses:0,limit:'∞',created:new Date().toLocaleDateString('tr-TR')});save();log('Toplu key üretildi',n+' adet');closeModal();render();toast(n+' key oluşturuldu')}
+function toggleKey(id){let k=keys.find(x=>x.id===id);if(!k)return;k.status=k.status==='Active'?'Disabled':'Active';save();log('Key durumu değişti',k.key+' → '+k.status);render()}
+function deleteKey(id){if(!confirm('Bu key silinsin mi?'))return;keys=keys.filter(x=>x.id!==id);save();log('Key silindi',id);render()}
+function banKey(id){let k=keys.find(x=>x.id===id);if(!k)return;banned.unshift({id:crypto.randomUUID(),value:k.key,reason:'Admin tarafından banlandı',date:new Date().toLocaleString('tr-TR'),ts:Date.now()});keys=keys.filter(x=>x.id!==id);save();log('Key banlandı',k.key);render()}
+function openBan(){openModal('Ban ekle',`<form onsubmit="addBan(event)"><div class="formgroup"><label>Key veya değer</label><input class="field" id="bval" required></div><div class="formgroup" style="margin-top:10px"><label>Ban nedeni</label><input class="field" id="breason" required placeholder="Neden?"></div><button class="btn primary" style="margin-top:15px">Ban uygula</button></form>`)}
+function addBan(e){e.preventDefault();let value=$('#bval').value.trim();banned.unshift({id:crypto.randomUUID(),value,reason:$('#breason').value,date:new Date().toLocaleString('tr-TR'),ts:Date.now()});keys=keys.filter(k=>k.key!==value);save();log('Ban eklendi',value);closeModal();render()}
+function unban(id){banned=banned.filter(b=>b.id!==id);save();log('Ban kaldırıldı',id);render()}
+function openApi(){openModal('API kaydı ekle',`<form onsubmit="addApi(event)"><div class="formgroup"><label>API adı</label><input class="field" id="aname" required></div><div class="formgroup" style="margin-top:10px"><label>Host / URL</label><input class="field" id="aurl" placeholder="https://api.example.com" required></div><button class="btn primary" style="margin-top:15px">Kaydet</button></form>`)}
+function addApi(e){e.preventDefault();apis.unshift({id:crypto.randomUUID(),name:$('#aname').value,url:$('#aurl').value,status:'Active',date:new Date().toLocaleDateString('tr-TR')});save();log('API kaydı eklendi',$('#aname').value);closeModal();render()}
+function delApi(id){apis=apis.filter(a=>a.id!==id);save();render()}
+function openUser(){openModal('Admin ekle',`<form onsubmit="addUser(event)"><div class="formgroup"><label>Ad</label><input class="field" id="uname" required></div><div class="formgroup" style="margin-top:10px"><label>E-posta</label><input class="field" id="uemail" type="email" required></div><div class="formgroup" style="margin-top:10px"><label>Rol</label><select class="field" id="urole"><option>Admin</option><option>Moderator</option><option>Viewer</option></select></div><p class="muted">Demo kayıt: gerçek giriş ve davet sistemi backend gerektirir.</p><button class="btn primary">Ekle</button></form>`)}
+function addUser(e){e.preventDefault();users.push({id:crypto.randomUUID(),name:$('#uname').value,email:$('#uemail').value,role:$('#urole').value,status:'Active'});save();log('Admin eklendi',$('#uemail').value);closeModal();render()}
+function delUser(id){if(!id)return toast('Ana admin silinemez');if(!confirm('Admin silinsin mi?'))return;users=users.filter(u=>u.id!==id);save();render()}
+function setTheme(i){let t=themes[i];document.documentElement.style.setProperty('--bg',t[1]);document.documentElement.style.setProperty('--panel',t[2]);document.documentElement.style.setProperty('--panel2',t[2]);document.documentElement.style.setProperty('--accent',t[3]);document.documentElement.style.setProperty('--accentText',contrast(t[3]));document.documentElement.style.setProperty('--text',isLight(t[1])?'#17191d':'#f4f5f7');document.documentElement.style.setProperty('--muted',isLight(t[1])?'#646b76':'#9298a6');document.documentElement.style.setProperty('--line',isLight(t[1])?'#d7dbe2':'#272b35');store.set('theme',i);settings.accent=t[3];save();render();toast(t[0]+' teması uygulandı')}
+function isLight(c){return parseInt(c.slice(1,3),16)*.299+parseInt(c.slice(3,5),16)*.587+parseInt(c.slice(5,7),16)*.114>150}
+function contrast(c){return isLight(c)?'#08090c':'#ffffff'}
+function customAccent(c){settings.accent=c;document.documentElement.style.setProperty('--accent',c);document.documentElement.style.setProperty('--accentText',contrast(c));save();toast('Ana renk güncellendi')}
+function exportData(){let data={keys,banned,logs,users,apis,settings};download('admin-panel-backup.json',JSON.stringify(data,null,2),'application/json')}
+function importData(file){if(!file)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);keys=d.keys||[];banned=d.banned||[];logs=d.logs||[];users=d.users||[];apis=d.apis||[];settings={...settings,...d.settings};save();render();toast('Yedek içe aktarıldı')}catch{toast('Geçersiz JSON dosyası')}};r.readAsText(file)}
+function download(name,data,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+function csv(rows){return rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n')}
+function exportKeys(){download('keys.csv',csv([['Key','Plan','Status','Uses','Limit','Expiry','Created'],...keys.map(k=>[k.key,k.plan,k.status,k.uses,k.limit,k.expiry,k.created])]),'text/csv')}
+function exportKeysTxt(){
+  const lines=keys.map(k=>k.key).filter(Boolean);
+  download('keys.txt',lines.join('\n')+(lines.length?'\n':''),'text/plain;charset=utf-8');
+  log('Keyler TXT olarak dışa aktarıldı',lines.length+' key');
+  toast(lines.length+' key TXT olarak indirildi');
+}
+function importKeysTxt(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const lines=String(reader.result||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    let added=0, skipped=0;
+    const existing=new Set(keys.map(k=>k.key.toLowerCase()));
+    const bannedSet=new Set(banned.map(b=>String(b.value).toLowerCase()));
+    for(const value of lines){
+      const key=value.replace(/^["']|["']$/g,'').trim();
+      if(!key || existing.has(key.toLowerCase()) || bannedSet.has(key.toLowerCase())){
+        skipped++; continue;
+      }
+      keys.unshift({
+        id:crypto.randomUUID(),key,plan:'Free',status:'Active',uses:0,
+        limit:'∞',expiry:'',note:'TXT içe aktarma',
+        created:new Date().toLocaleDateString('tr-TR')
+      });
+      existing.add(key.toLowerCase());
+      added++;
+    }
+    save();
+    log('TXT ile key içe aktarıldı',added+' eklendi, '+skipped+' atlandı');
+    render();
+    toast('İçe aktarma tamamlandı: '+added+' eklendi, '+skipped+' atlandı');
+  };
+  reader.onerror=()=>toast('TXT dosyası okunamadı');
+  reader.readAsText(file);
+}
+function exportLogs(){download('logs.csv',csv([['Time','Action','Detail'],...logs.map(l=>[l.time,l.action,l.detail])]),'text/csv')}
+function clearLogs(){if(confirm('Tüm loglar silinsin mi?')){logs=[];save();render()}}
+function resetAll(){if(confirm('TÜM PANEL VERİLERİ SİLİNECEK. Emin misin?')){['keys','banned','logs','users','apis','settings','theme'].forEach(k=>localStorage.removeItem('ap_'+k));location.reload()}}
+function clock(){let d=new Date();$('#clock').textContent=d.toLocaleString('tr-TR');$('#topdate').textContent=d.toLocaleDateString('tr-TR')}
+let ti=store.get('theme',0);setTheme(ti);clock();setInterval(clock,1000);render();
+</script></body></html>
